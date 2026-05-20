@@ -1,0 +1,2 @@
+# LAWAI
+AI for Law
