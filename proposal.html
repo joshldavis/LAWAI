@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Scoped Proposal — Beck Peistrup, LTD · AMD Consulting</title>
+<style>
+  :root{
+    --navy:#0e2238; --navy2:#16314f; --gold:#c2a35a; --gold-d:#a8863f;
+    --ink:#15212e; --slate:#5b6b7b; --line:#e6eaef; --bg:#f6f8fb; --white:#fff;
+    --accent:#2f6df0; --accent-soft:#eaf1ff; --danger:#d4504a; --danger-soft:#fbe9e8;
+    --success:#2e9e6b; --success-soft:#e6f6ee; --warn:#dd8a1f; --warn-soft:#fdf2e0; --gold-soft:#f7f0df;
+    --shadow:0 1px 2px rgba(13,30,50,.06),0 8px 24px rgba(13,30,50,.07);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;color:var(--ink);background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.58;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,h4{font-family:Georgia,"Iowan Old Style","Times New Roman",serif;line-height:1.2;color:var(--navy);margin:0 0 .4em}
+  h2{font-size:1.9rem;letter-spacing:-.01em}
+  h3{font-size:1.18rem}
+  p{margin:0 0 1em}
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:1020px;margin:0 auto;padding:0 22px}
+  .badge-bar{background:var(--navy);color:#cdd9e6;font-size:.74rem;letter-spacing:.03em;text-align:center;padding:7px 12px}
+  .badge-bar b{color:var(--gold)}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand .mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--gold);display:grid;place-items:center;font-size:.74rem;font-weight:700;letter-spacing:.02em}
+  .brand .bt{font-family:Georgia,serif;font-weight:600;color:var(--navy);font-size:1rem;line-height:1.1}
+  .brand .bs{font-size:.72rem;color:var(--gold-d);letter-spacing:.08em;text-transform:uppercase}
+  .nav-links{display:flex;gap:20px;font-size:.9rem}
+  .nav-links a{color:var(--slate);font-weight:500}
+  .nav-links a:hover{color:var(--navy)}
+  @media(max-width:880px){.nav-links{display:none}}
+
+  .hero{background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 60%,#1d3e63 100%);color:#eaf1f8;padding:70px 0 76px;position:relative;overflow:hidden}
+  .hero:after{content:"";position:absolute;right:-120px;top:-120px;width:420px;height:420px;background:radial-gradient(circle,rgba(194,163,90,.22),transparent 65%)}
+  .eyebrow{color:var(--gold);font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;margin-bottom:14px}
+  .hero h1{color:#fff;font-size:2.5rem;max-width:20ch;margin-bottom:.35em}
+  .hero p{color:#c4d2e0;font-size:1.14rem;max-width:62ch}
+  .hero .cta{margin-top:26px;display:flex;gap:12px;flex-wrap:wrap}
+  .btn{display:inline-block;padding:12px 20px;border-radius:10px;font-weight:600;font-size:.93rem;cursor:pointer;border:0;transition:transform .08s ease, box-shadow .2s;font-family:inherit}
+  .btn:hover{transform:translateY(-1px)}
+  .btn-gold{background:var(--gold);color:#241c08}
+  .btn-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.28)}
+
+  section{padding:60px 0}
+  .sec-label{color:var(--gold-d);font-weight:700;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}
+  .lead{font-size:1.05rem;color:var(--slate);max-width:68ch}
+  .alt{background:var(--white);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+
+  /* situation */
+  .sit{display:grid;grid-template-columns:1.3fr 1fr;gap:26px;margin-top:24px}
+  @media(max-width:820px){.sit{grid-template-columns:1fr}}
+  .statgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;box-shadow:var(--shadow)}
+  .stat b{display:block;font-family:Georgia,serif;font-size:1.7rem;color:var(--navy)}
+  .stat span{font-size:.8rem;color:var(--slate)}
+  .strength{background:var(--success-soft);border:1px solid #c2e6d4;border-radius:12px;padding:14px 16px;margin-top:14px;font-size:.9rem;color:#1d6e49}
+
+  /* moves */
+  .moves{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:26px}
+  @media(max-width:820px){.moves{grid-template-columns:1fr}}
+  .move{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+  .move .n{width:34px;height:34px;border-radius:9px;background:var(--navy);color:var(--gold);display:grid;place-items:center;font-family:Georgia,serif;font-weight:700;margin-bottom:12px}
+  .move p{font-size:.9rem;color:var(--slate);margin:0 0 12px}
+  .move a{font-size:.83rem;font-weight:600}
+
+  /* phases */
+  .phase{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-top:18px;overflow:hidden}
+  .phase .ph-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding:18px 22px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#fafcfe);flex-wrap:wrap}
+  .phase .ph-tag{font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-d);font-weight:700}
+  .phase h3{margin:3px 0 0}
+  .phase .ph-time{font-size:.82rem;color:var(--slate);font-weight:600;background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:5px 12px;white-space:nowrap}
+  .phase .ph-body{padding:18px 22px}
+  .phase .ph-body p{font-size:.95rem;margin:0 0 14px}
+  .ph-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:760px){.ph-cols{grid-template-columns:1fr}}
+  .ph-cols h4{font-family:inherit;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;color:var(--slate);margin:0 0 8px}
+  ul.tick{list-style:none;margin:0;padding:0}
+  ul.tick li{position:relative;padding:5px 0 5px 24px;font-size:.9rem;color:var(--ink)}
+  ul.tick li:before{content:"✓";position:absolute;left:0;color:var(--success);font-weight:700}
+  ul.solve li:before{content:"→";color:var(--accent)}
+  .ph-note{font-size:.82rem;color:var(--slate);font-style:italic;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+
+  /* security */
+  .sec-sec{background:var(--navy);color:#dce6f0}
+  .sec-sec h2{color:#fff}.sec-sec .lead{color:#b6c6d8}
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:24px}
+  @media(max-width:760px){.vs{grid-template-columns:1fr}}
+  .vs .col{border-radius:var(--radius);padding:20px}
+  .vs .bad{background:rgba(212,80,74,.10);border:1px solid rgba(212,80,74,.35)}
+  .vs .good{background:rgba(46,158,107,.10);border:1px solid rgba(46,158,107,.4)}
+  .vs h4{margin:0 0 12px;font-family:inherit;font-size:1rem;color:#fff}
+  .vs ul{margin:0;padding-left:2px;list-style:none}
+  .vs li{padding:6px 0 6px 26px;position:relative;font-size:.9rem;color:#cdd9e6}
+  .vs .bad li:before{content:"✕";position:absolute;left:0;color:#e98d88;font-weight:700}
+  .vs .good li:before{content:"✓";position:absolute;left:0;color:#7fe0b4;font-weight:700}
+
+  /* pricing */
+  .price{background:linear-gradient(180deg,#fff,#f2f6fb)}
+  .ptable{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-top:24px}
+  .ptable table{width:100%;border-collapse:collapse}
+  .ptable th,.ptable td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--line);font-size:.92rem}
+  .ptable th{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--slate);font-weight:700;background:var(--bg)}
+  .ptable td.mkt{color:var(--slate);text-decoration:line-through;text-decoration-color:#c7ced6}
+  .ptable td.you{font-weight:700;color:var(--success)}
+  .ptable tr.total td{background:#fbfdff;font-weight:700;font-size:1rem;border-top:2px solid var(--line)}
+  .ptable td .desc{display:block;font-size:.78rem;color:var(--slate);font-weight:400;text-decoration:none;margin-top:2px}
+  .price-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+  @media(max-width:820px){.price-cards{grid-template-columns:1fr}}
+  .pc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
+  .pc .lab{font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold-d);font-weight:700}
+  .pc .amt{font-family:Georgia,serif;font-size:1.9rem;color:var(--navy);margin:6px 0 2px}
+  .pc .amt small{font-size:.9rem;color:var(--slate);font-weight:400}
+  .pc p{font-size:.85rem;color:var(--slate);margin:6px 0 0}
+  .pc.free{border:2px solid var(--gold);background:var(--gold-soft)}
+  .exchange{background:#fff;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:12px;padding:22px;margin-top:24px;box-shadow:var(--shadow)}
+  .exchange h3{margin-bottom:.5em}
+  .exchange .deal{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:14px}
+  @media(max-width:680px){.exchange .deal{grid-template-columns:1fr}}
+  .exchange .deal h4{font-family:inherit;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px;color:var(--slate)}
+  .pfoot{font-size:.8rem;color:var(--slate);font-style:italic;margin-top:18px}
+
+  /* needs / timeline */
+  .needs{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}
+  @media(max-width:820px){.needs{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+  .card .ch{padding:14px 18px;border-bottom:1px solid var(--line);font-weight:700;color:var(--navy);font-size:.95rem}
+  .card .cb{padding:6px 18px 14px}
+  ol.q{margin:8px 0 0;padding-left:20px}
+  ol.q li{padding:5px 0;font-size:.9rem;color:var(--ink)}
+
+  .closing{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:28px;margin-top:8px;box-shadow:var(--shadow)}
+  .closing h2{margin-bottom:.3em}
+  .closing p{margin:0 0 1em;color:var(--ink);font-size:1.02rem}
+  .closing .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+  .btn-navy{background:var(--navy);color:#fff}
+  .btn-soft{background:var(--bg);color:var(--navy);border:1px solid var(--line)}
+
+  footer{background:var(--navy);color:#8ea3ba;font-size:.82rem;text-align:center;padding:26px 12px;line-height:1.6}
+  footer b{color:#c2a35a}
+</style>
+</head>
+<body>
+<div class="badge-bar">An <b>AMD Consulting</b> engagement &nbsp;·&nbsp; prepared for <b>Beck Peistrup, LTD</b> &nbsp;·&nbsp; scoped proposal — draft for discussion</div>
+
+<nav><div class="wrap nav-in">
+  <div class="brand"><span class="mark">AMD</span><span><span class="bt">AMD Consulting</span><br><span class="bs">for Beck Peistrup, LTD</span></span></div>
+  <div class="nav-links">
+    <a href="#situation">Situation</a>
+    <a href="#build">What we build</a>
+    <a href="#phases">The phases</a>
+    <a href="#security">Security</a>
+    <a href="#investment">Investment</a>
+    <a href="#start">Start</a>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="eyebrow">Scoped proposal</div>
+  <h1>A secure, firm-owned system to run the practice — built in phases.</h1>
+  <p>You field ~200 calls a day and each attorney is carrying ~70 active matters, held together by one admin. This is the plan to fix that: capture every lead, run the whole practice from one screen, and grow the funnel that feeds it — starting with the intake win that pays for the rest.</p>
+  <div class="cta">
+    <a class="btn btn-gold" href="index.html#intake">▶ Hear the intake demo</a>
+    <a class="btn btn-ghost" href="mission-control.html">Open Mission Control →</a>
+    <a class="btn btn-ghost" href="phone-flow.html">How the phone integration works →</a>
+  </div>
+</div></header>
+
+<!-- SITUATION -->
+<section id="situation"><div class="wrap">
+  <div class="sec-label">The situation</div>
+  <h2>Where the practice is leaking</h2>
+  <p class="lead">Intake is the chokepoint. At this call volume against one admin, some prospective clients inevitably hit voicemail and never get logged — and at $5–8K per OVI matter, even a few lost intakes a month is real revenue out the door. The funnel above intake has gaps too: several OVI pages still describe the pre-2025 penalty framework (before Liv's Law), and access to the firm's own analytics, Search Console, and Google Business Profile has lapsed — you can't manage what you can't see.</p>
+  <div class="sit">
+    <div class="statgrid">
+      <div class="stat"><b>~200</b><span>calls a day</span></div>
+      <div class="stat"><b>~70</b><span>active cases per attorney</span></div>
+      <div class="stat"><b>1</b><span>admin holding the front line</span></div>
+      <div class="stat"><b>$5–8K</b><span>value per OVI matter</span></div>
+    </div>
+    <div>
+      <p style="font-size:.95rem">This isn't a staffing failure — it's a math problem. The fix is a <strong>system</strong> around the volume, not more hands.</p>
+      <div class="strength"><strong>You're not starting from zero.</strong> Real ranking strength in Marysville and Union County terms, a deep library of OVI content already drafted, genuine OVI authority in Beck — and <strong>42 Google reviews at 4.9</strong>. The raw material is strong; what's missing is the system. We amplify the strengths and build what's absent.</div>
+    </div>
+  </div>
+</div></section>
+
+<!-- WHAT WE BUILD -->
+<section class="alt" id="build"><div class="wrap">
+  <div class="sec-label">What we build</div>
+  <h2>Three moves, sequenced so the first one pays for the rest</h2>
+  <p class="lead">Each move is already shown as a working demo — not a slide. Click through and see it run.</p>
+  <div class="moves">
+    <div class="move"><div class="n">1</div><h3>Automate intake</h3><p>Capture every call and web lead, triage by matter type, run a conflict check, flag time-sensitive deadlines, and book consults — so your admin becomes the exception-handler and nothing slips to voicemail.</p><a href="index.html#intake">▶ Hear it run →</a></div>
+    <div class="move"><div class="n">2</div><h3>Practice Mission Control</h3><p>One secure dashboard for leads, matters, and deadlines on infrastructure the firm owns — fixing the MyCase friction by giving you exactly the views you actually use.</p><a href="mission-control.html">Open the app →</a></div>
+    <div class="move"><div class="n">3</div><h3>Modernize visibility</h3><p>Reclaim and own your analytics and Google profile, update the OVI content to current law, and sharpen the pages searchers and AI answer engines surface — so more of those 200 daily calls are the right calls.</p><a href="phone-flow.html">See the capture flow →</a></div>
+  </div>
+</div></section>
+
+<!-- PHASES -->
+<section id="phases"><div class="wrap">
+  <div class="sec-label">The phased plan</div>
+  <h2>What ships, in what order</h2>
+  <p class="lead">Phased deliberately: we start with the cheapest, fastest piece with the clearest ROI, prove it, and build out from a system that's already earning its keep.</p>
+
+  <!-- Phase 1 -->
+  <div class="phase">
+    <div class="ph-head">
+      <div><span class="ph-tag">Phase 1 · the intake win</span><h3>Capture everything</h3></div>
+      <span class="ph-time">~3–4 weeks · gated by carrier (10DLC) approval</span>
+    </div>
+    <div class="ph-body">
+      <p>Stop losing leads at the front door. Stand up automated lead capture and one tracked pipeline so every inbound contact is logged, routed, and followed up — no AI voice agent required to ship.</p>
+      <div class="ph-cols">
+        <div>
+          <h4>What ships</h4>
+          <ul class="tick">
+            <li>Missed-call text-back — any unanswered call fires an instant SMS with an intake link</li>
+            <li>Branded mobile-first web intake form that creates a lead</li>
+            <li>Two-way SMS hub with AI-suggested replies (staff approve before sending)</li>
+            <li>Lead pipeline: New → Contacted → Consult booked → Retained</li>
+            <li>New-lead alerts, appointment reminders, post-close review requests</li>
+            <li>Basic conflict check (name match, flag for review)</li>
+          </ul>
+        </div>
+        <div>
+          <h4>What it solves</h4>
+          <ul class="tick solve">
+            <li>Nothing inbound disappears into voicemail</li>
+            <li>Recovering a handful of OVI matters a month pays for the build</li>
+            <li>Your admin works exceptions, not the whole queue</li>
+          </ul>
+          <p class="ph-note"><strong>Phase 1b (fast follow):</strong> after-hours AI voice agent on the firm's own keys — answers, gathers details, and books the consult when no human is available.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 2 -->
+  <div class="phase">
+    <div class="ph-head">
+      <div><span class="ph-tag">Phase 2 · run the practice</span><h3>Practice Mission Control</h3></div>
+      <span class="ph-time">scoped after Phase 1 is live</span>
+    </div>
+    <div class="ph-body">
+      <p>Build out the dashboard that makes 140+ active matters visible and managed instead of carried in everyone's head — and replaces the MyCase friction with the views you actually use.</p>
+      <div class="ph-cols">
+        <div>
+          <h4>What ships</h4>
+          <ul class="tick">
+            <li>Matters + caseload views by attorney</li>
+            <li>Jurisdiction-aware court-deadline rules engine (ALS/BMV windows, speedy-trial)</li>
+            <li>Document automation for common filings and intake packets</li>
+            <li>Billing &amp; trust: IOLTA accounting with 3-way reconciliation (Ohio rules)</li>
+            <li>Client portal + e-signature</li>
+            <li>Immutable audit trail across every action</li>
+          </ul>
+        </div>
+        <div>
+          <h4>What it solves</h4>
+          <ul class="tick solve">
+            <li>Deadlines stop living in people's heads</li>
+            <li>Trust accounting that holds up to bar scrutiny</li>
+            <li>One owned system instead of disconnected tools</li>
+          </ul>
+          <p class="ph-note">These legal-specific pieces don't exist off the shelf — they're built custom and checked against current Ohio rules before launch.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase 3 -->
+  <div class="phase">
+    <div class="ph-head">
+      <div><span class="ph-tag">Phase 3 · grow the funnel</span><h3>Modernize visibility</h3></div>
+      <span class="ph-time">runs alongside; ongoing</span>
+    </div>
+    <div class="ph-body">
+      <p>Now that the system can hold the volume, raise it — and make sure the calls that come in are the right ones.</p>
+      <div class="ph-cols">
+        <div>
+          <h4>What ships</h4>
+          <ul class="tick">
+            <li>Reclaim &amp; own analytics, Search Console, and Google Business Profile</li>
+            <li>Re-baseline measurement so decisions are data-driven</li>
+            <li>Update all OVI/OMVI pages to current law (Liv's Law / HB 37)</li>
+            <li>Restructure pages searchers and AI answer engines surface (SEO/GEO)</li>
+            <li>Keep building on the 4.9-star review base</li>
+          </ul>
+        </div>
+        <div>
+          <h4>What it solves</h4>
+          <ul class="tick solve">
+            <li>Strong demand stops going uncaptured</li>
+            <li>Content converts instead of describing outdated penalties</li>
+            <li>More of the 200 daily calls are qualified matters</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- SECURITY -->
+<section class="sec-sec" id="security"><div class="wrap">
+  <div class="sec-label" style="color:var(--gold)">Why it's built differently</div>
+  <h2>Automation a law firm can actually trust</h2>
+  <p class="lead">A practice runs on confidentiality and privilege. The viral consumer AI agents weren't built for that — this is. Your data, your keys, full audit trail, human in the loop.</p>
+  <div class="vs">
+    <div class="col bad">
+      <h4>Off-the-shelf AI agents</h4>
+      <ul>
+        <li>Reach into your files with broad access</li>
+        <li>Pull untrusted third-party "skills" / code</li>
+        <li>Can act on their own — no audit trail</li>
+        <li>Client data flows through someone else's tool</li>
+        <li>You don't own it and can't prove what it did</li>
+      </ul>
+    </div>
+    <div class="col good">
+      <h4>Your owned system</h4>
+      <ul>
+        <li>Runs on the firm's own infrastructure (Vercel + Supabase)</li>
+        <li>Row-level isolation &amp; role-based access; 2FA</li>
+        <li>Every action logged — a complete audit trail</li>
+        <li>Your own AI keys; transcribe-then-discard audio by default</li>
+        <li>You own the asset, the data, and the instance</li>
+      </ul>
+    </div>
+  </div>
+  <p class="lead" style="margin-top:18px;color:#9fb6cd;font-size:.92rem">UPL guardrail: automated and AI-suggested messages capture and schedule only — they never give legal advice. An attorney reviews anything substantive.</p>
+</div></section>
+
+<!-- INVESTMENT -->
+<section class="price" id="investment"><div class="wrap">
+  <div class="sec-label">The investment</div>
+  <h2>What this costs — and what you'll actually pay</h2>
+  <p class="lead">Here's the honest version. Below is what a build of this scope costs on the open market. I'm not charging you for it — and the next section explains why that's a fair deal for both of us.</p>
+
+  <div class="ptable">
+    <table>
+      <thead><tr><th>Build component</th><th>Comparable market rate</th><th>As your design partner</th></tr></thead>
+      <tbody>
+        <tr><td>Phase 1 — Capture<span class="desc">Lead capture, SMS hub, pipeline, conflict check, after-hours AI voice agent</span></td><td class="mkt">~$22,000</td><td class="you">included</td></tr>
+        <tr><td>Phase 2 — Run the practice<span class="desc">Mission Control, deadline rules engine, doc automation, IOLTA/trust, client portal + e-sign, audit</span></td><td class="mkt">~$55,000</td><td class="you">included</td></tr>
+        <tr><td>Phase 3 — Grow the funnel<span class="desc">Analytics/GBP reclaim, content modernization, SEO/GEO restructure</span></td><td class="mkt">~$12,000</td><td class="you">included</td></tr>
+        <tr class="total"><td>One-time build</td><td class="mkt">~$89,000</td><td class="you">$0 — waived</td></tr>
+        <tr class="total"><td>Ongoing</td><td class="mkt">~$3,500–5,000 / mo managed</td><td class="you">$1,500 / mo + usage at cost</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="pfoot">Market-rate figures are fair reference points for a custom build of this scope. For context, the marketing-only vendor you spoke with quoted ~$5,000 + ~$3,000/mo for a fraction of this — a website refresh, no practice system, governing law out of state, no KPIs.</p>
+
+  <div class="price-cards">
+    <div class="pc free">
+      <div class="lab">The build</div>
+      <div class="amt">$0 <small>waived</small></div>
+      <p>The full phased system, built for the firm as an AMD product investment. No project fee.</p>
+    </div>
+    <div class="pc">
+      <div class="lab">Maintenance</div>
+      <div class="amt">$1,500 <small>/ mo · founding rate</small></div>
+      <p>Hosting management, monitoring, updates, and routine support — folded into one flat fee, locked at the founding rate.</p>
+    </div>
+    <div class="pc">
+      <div class="lab">Usage + ad-hoc</div>
+      <div class="amt">at cost</div>
+      <p>Hosting, AI tokens, and telephony billed straight through at cost (est. well under $100/mo at Phase 1 volume). New work beyond maintenance at $150/hr.</p>
+    </div>
+  </div>
+
+  <div class="exchange">
+    <h3>Why free — the design-partner exchange</h3>
+    <p>I'm productizing this system, and Beck Peistrup is the right firm to build it with. So instead of a six-figure invoice, this is a partnership: I build it for free, you help me prove it works in a real practice.</p>
+    <div class="deal">
+      <div>
+        <h4>What the firm gets</h4>
+        <ul class="tick">
+          <li>The full system, built around how you actually work</li>
+          <li>Your own instance, your own data, your own keys</li>
+          <li>Founding maintenance rate, locked</li>
+        </ul>
+      </div>
+      <div>
+        <h4>What AMD gets</h4>
+        <ul class="tick">
+          <li>A flagship case study and reference firm</li>
+          <li>A referral channel (attorneys talk at court)</li>
+          <li>Ownership of the underlying product IP</li>
+        </ul>
+      </div>
+    </div>
+    <p class="pfoot" style="margin-top:16px">No long-term lock-in games — the maintenance fee covers real work, and the system is yours to run. We can put the specifics in a short written agreement whenever you're ready.</p>
+  </div>
+</div></section>
+
+<!-- START -->
+<section class="alt" id="start"><div class="wrap">
+  <div class="sec-label">To get started</div>
+  <h2>What we'd need to kick off Phase 1</h2>
+  <div class="needs">
+    <div class="card">
+      <div class="ch">Accounts &amp; assets</div>
+      <div class="cb">
+        <ul class="tick">
+          <li>Twilio account (+ 10DLC brand info) — the long pole, start day one</li>
+          <li>Supabase project + Anthropic API key (firm-owned)</li>
+          <li>Existing phone number details (carrier, for port or forward)</li>
+          <li>Firm logo and brand colors</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch">A few decisions from Beck &amp; you</div>
+      <div class="cb">
+        <ol class="q">
+          <li>Keep the existing number via <strong>port</strong> (cleaner) or <strong>forward</strong> (faster, reversible)?</li>
+          <li>What counts as "business hours," and who's the after-hours fallback until Phase 1b?</li>
+          <li>Source of truth for conflict data (export from MyCase)?</li>
+          <li>Who monitors the SMS hub day-to-day — admin, or a VA we train?</li>
+          <li>Exact intake fields and any required disclaimers?</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="closing">
+    <h2>Next step</h2>
+    <p><strong>Bottom line:</strong> a secure, firm-owned system that turns 200 daily calls and 140+ active matters from a daily scramble into something measurable and calm — built in phases, starting with the intake win that pays for itself fastest, at no build cost to the firm.</p>
+    <p>If this lands, we greenlight Phase 1, get the Twilio/10DLC clock started, and have working lead capture live in about a month.</p>
+    <div class="cta">
+      <a class="btn btn-gold" href="index.html#intake">▶ Revisit the intake demo</a>
+      <a class="btn btn-navy" href="mission-control.html">Open Mission Control</a>
+      <a class="btn btn-soft" href="phone-flow.html">See how the phone integration works</a>
+    </div>
+  </div>
+</div></section>
+
+<footer>
+  An <b>AMD Consulting</b> engagement<br>
+  Prepared by Josh Davis, Ph.D. for Beck Peistrup, LTD · Scoped proposal — draft for discussion. Figures illustrative; final terms by agreement.
+</footer>
+</body>
+</html>

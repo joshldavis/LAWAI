@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>How the Phone Integration Works — Beck Peistrup</title>
+<style>
+  :root{
+    --navy:#0e2238;--navy2:#16314f;--gold:#c2a35a;--gold-d:#a8863f;--ink:#15212e;--slate:#5b6b7b;
+    --line:#e3e8ee;--bg:#f6f8fb;--white:#fff;--accent:#2f6df0;--accent-soft:#eaf1ff;
+    --success:#2e9e6b;--success-soft:#e6f6ee;--danger:#d4504a;--warn-soft:#fdf2e0;--gold-soft:#f7f0df;
+    --shadow:0 1px 2px rgba(13,30,50,.06),0 10px 28px rgba(13,30,50,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;padding:28px 16px 48px}
+  .page{max-width:880px;margin:0 auto}
+  h1,h2{font-family:Georgia,"Iowan Old Style",serif;color:var(--navy);margin:0}
+  .badge{font-size:.72rem;letter-spacing:.04em;color:var(--gold-d);text-transform:uppercase;font-weight:700}
+  header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:8px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand .mk{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--gold);display:grid;place-items:center;font-weight:700;font-size:.74rem}
+  .brand b{font-family:Georgia,serif;color:var(--navy);font-size:1rem}
+  .brand span{display:block;font-size:.7rem;color:var(--gold-d);letter-spacing:.06em;text-transform:uppercase}
+  h1{font-size:1.7rem;margin:14px 0 4px}
+  .sub{color:var(--slate);font-size:.98rem;margin-bottom:22px}
+
+  .flow{background:var(--white);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:26px 22px}
+  .node{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--white)}
+  .node .t{font-weight:700;color:var(--navy);font-size:.98rem}
+  .node .d{font-size:.84rem;color:var(--slate);margin-top:3px}
+  .center{max-width:520px;margin:0 auto}
+  .arrow{display:flex;justify-content:center;color:var(--gold-d);font-size:1.2rem;margin:7px 0}
+  .step1{background:var(--navy);border-color:var(--navy)}
+  .step1 .t{color:#fff}.step1 .d{color:#b9c8d8}
+  .tele{background:var(--accent-soft);border-color:#cfe0ff}
+  .route{background:var(--gold-soft);border-color:#e8d5a6}
+  .splitlbl{text-align:center;font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--slate);margin:6px 0 8px;font-weight:700}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:660px;margin:0 auto}
+  @media(max-width:620px){.split{grid-template-columns:1fr}}
+  .daytime{background:#fff;border-color:#cfe0ff;border-left:3px solid var(--accent)}
+  .after{background:#fff;border-color:#d8c79a;border-left:3px solid var(--gold)}
+  .badge-pill{display:inline-block;font-size:.66rem;font-weight:700;border-radius:20px;padding:2px 8px;margin-bottom:6px}
+  .bp-day{background:var(--accent-soft);color:var(--accent)}
+  .bp-after{background:var(--gold-soft);color:var(--gold-d)}
+  .mc{background:var(--navy);border-color:var(--navy);max-width:620px;margin:0 auto;color:#fff}
+  .mc .t{color:#fff}
+  .mc .grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin-top:10px}
+  @media(max-width:620px){.mc .grid{grid-template-columns:1fr}}
+  .mc .grid div{font-size:.83rem;color:#dbe6f1;padding-left:18px;position:relative}
+  .mc .grid div:before{content:"✓";position:absolute;left:0;color:var(--gold)}
+  .outs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:660px;margin:0 auto}
+  @media(max-width:620px){.outs{grid-template-columns:1fr}}
+  .out{background:var(--success-soft);border:1px solid #c2e6d4;border-radius:11px;padding:12px;text-align:center;font-size:.85rem;font-weight:600;color:#1d6e49}
+  .smsband{margin-top:20px;background:var(--warn-soft);border:1px solid #f0d9ab;border-radius:12px;padding:14px 16px}
+  .smsband .t{font-weight:700;color:#8a5a13;font-size:.92rem;margin-bottom:4px}
+  .smsband .d{font-size:.85rem;color:#8a5a13}
+  .guarantees{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .chip{background:#fff;border:1px solid var(--line);border-radius:20px;padding:7px 13px;font-size:.8rem;font-weight:600;color:var(--navy)}
+  .chip .ic{color:var(--success)}
+  .note{font-size:.78rem;color:var(--slate);font-style:italic;margin-top:18px;text-align:center}
+  footer{text-align:center;color:var(--slate);font-size:.8rem;margin-top:22px}
+  footer b{color:var(--gold-d)}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="brand"><span class="mk">AMD</span><span><b>AMD Consulting</b><span>for Beck Peistrup, LTD</span></span></div>
+    <span class="badge">Phone integration · how it works</span>
+  </header>
+  <h1>Every call, captured — here's the path it takes</h1>
+  <div class="sub">Clients keep dialing your existing number. Behind it, a secure, firm-owned pipeline turns each call into a complete case file — automatically, day or night.</div>
+
+  <div class="flow">
+    <div class="node step1 center"><div class="t">📞 Incoming call</div><div class="d">Client dials your existing number — ported or forwarded, nothing changes for them.</div></div>
+    <div class="arrow">▼</div>
+    <div class="node tele center"><div class="t">☎️ Telephony layer — Twilio</div><div class="d">Programmable numbers, voice, and SMS. The "dial tone" everything else plugs into.</div></div>
+    <div class="arrow">▼</div>
+    <div class="node route center"><div class="t">⚙️ Routing logic — Vercel function</div><div class="d">In under one ring, picks the path based on time of day and whether your admin is free.</div></div>
+    <div class="arrow">▼</div>
+
+    <div class="splitlbl">— two paths, same clean result —</div>
+    <div class="split">
+      <div class="node daytime"><span class="badge-pill bp-day">Daytime</span><div class="t">🧑‍💼 Admin answers</div><div class="d">A human takes the call. AI assist transcribes it and auto-fills the record in the background — no typing while talking.</div></div>
+      <div class="node after"><span class="badge-pill bp-after">After-hours · overflow · missed</span><div class="t">🤖 AI voice agent</div><div class="d">A natural-voice agent (running <em>your</em> Anthropic key) answers, gathers the details, and books the consult.</div></div>
+    </div>
+    <div class="arrow">▼</div>
+
+    <div class="node mc"><div class="t">🗂️ Mission Control — your Supabase database</div>
+      <div class="grid">
+        <div>Create the intake / lead record</div>
+        <div>Run a conflict check</div>
+        <div>Classify the matter (OVI, family…)</div>
+        <div>Flag time-sensitive deadlines (e.g., ALS)</div>
+        <div>Book the consultation</div>
+        <div>Write every step to the audit trail</div>
+      </div>
+    </div>
+    <div class="arrow">▼</div>
+
+    <div class="outs">
+      <div class="out">✅ Confirmation text to the client</div>
+      <div class="out">📅 Consult on the calendar</div>
+      <div class="out">📁 Clean case file — 0 lost to voicemail</div>
+    </div>
+
+    <div class="smsband">
+      <div class="t">📱 The SMS layer (same number, always on)</div>
+      <div class="d">Missed-call text-back · two-way client texting · appointment reminders · automated review requests after a case closes.</div>
+    </div>
+
+    <div class="guarantees">
+      <span class="chip"><span class="ic">✓</span> Transcribe-then-discard audio</span>
+      <span class="chip"><span class="ic">✓</span> Bring-your-own AI keys</span>
+      <span class="chip"><span class="ic">✓</span> Encrypted &amp; firm-owned</span>
+      <span class="chip"><span class="ic">✓</span> Full audit trail</span>
+      <span class="chip"><span class="ic">✓</span> No legal advice — UPL-safe</span>
+    </div>
+
+    <div class="note">Illustrative architecture. Specific vendors (Twilio, voice-agent platform) chosen at build; everything runs on infrastructure the firm owns.</div>
+  </div>
+
+  <footer>An <b>AMD Consulting</b> engagement · prepared for Beck Peistrup, LTD</footer>
+</div>
+</body>
+</html>
