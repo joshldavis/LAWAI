@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Beck Peistrup · Mission Control (Demo)</title>
+<style>
+  :root{
+    --navy:#0e2238;--navy2:#16314f;--gold:#c2a35a;--gold-d:#a8863f;--ink:#15212e;--slate:#5b6b7b;
+    --line:#e6eaef;--bg:#f4f7fb;--white:#fff;--accent:#2f6df0;--accent-soft:#eaf1ff;
+    --danger:#d4504a;--danger-soft:#fbe9e8;--success:#2e9e6b;--success-soft:#e6f6ee;--warn:#dd8a1f;--warn-soft:#fdf2e0;
+    --shadow:0 1px 2px rgba(13,30,50,.06),0 8px 24px rgba(13,30,50,.07);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);height:100vh;overflow:hidden;display:flex}
+  h1,h2,h3{font-family:Georgia,"Iowan Old Style",serif;color:var(--navy);margin:0}
+  /* SIDEBAR */
+  .side{width:236px;background:linear-gradient(180deg,var(--navy),#0b1b2e);color:#cdd9e6;flex:0 0 236px;display:flex;flex-direction:column;padding:16px 12px}
+  .logo{display:flex;align-items:center;gap:10px;padding:6px 8px 14px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:12px}
+  .logo .mk{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#1d3e63,#16314f);color:var(--gold);display:grid;place-items:center;font-weight:700;font-size:.8rem}
+  .logo .lt{font-family:Georgia,serif;color:#fff;font-size:.98rem;line-height:1.1}
+  .logo .ls{font-size:.68rem;color:#8ea6bf;letter-spacing:.06em;text-transform:uppercase}
+  .nav{list-style:none;margin:0;padding:0;flex:1;overflow-y:auto}
+  .nav li{display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:9px;cursor:pointer;font-size:.9rem;font-weight:500;color:#bccadb;margin-bottom:2px;transition:.15s}
+  .nav li:hover{background:rgba(255,255,255,.06);color:#fff}
+  .nav li.active{background:var(--gold);color:#231b07;font-weight:600}
+  .nav li .ico{width:20px;text-align:center}
+  .nav li .pip{margin-left:auto;background:var(--danger);color:#fff;font-size:.66rem;font-weight:700;border-radius:20px;padding:1px 7px}
+  .nav li.active .pip{background:#231b07;color:var(--gold)}
+  .nav li.sec{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:#6f87a0;padding:13px 11px 3px;font-weight:700;cursor:default}
+  .nav li.sec:hover{background:none;color:#6f87a0}
+  .side .foot{border-top:1px solid rgba(255,255,255,.08);padding-top:10px;font-size:.72rem;color:#7e95ad}
+  .side .foot a{color:var(--gold);text-decoration:none}
+  /* MAIN */
+  .main{flex:1;display:flex;flex-direction:column;min-width:0}
+  .top{height:60px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 22px;flex:0 0 60px}
+  .top h1{font-size:1.15rem}
+  .top .sub{color:var(--slate);font-size:.82rem}
+  .top .sp{flex:1}
+  .search{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font-size:.84rem;color:var(--slate);width:230px}
+  .pill-demo{font-size:.68rem;font-weight:700;color:var(--gold-d);background:var(--warn-soft);border:1px solid #f0d9ab;padding:4px 9px;border-radius:20px}
+  .btn{border:0;border-radius:8px;padding:8px 14px;font-weight:600;font-size:.84rem;cursor:pointer;font-family:inherit}
+  .btn-gold{background:var(--gold);color:#241c08}.btn-navy{background:var(--navy);color:#fff}
+  .btn-soft{background:var(--accent-soft);color:var(--accent)}.btn-ghost{background:#fff;border:1px solid var(--line);color:var(--slate)}
+  .view{flex:1;overflow-y:auto;padding:22px}
+  /* shared */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+  @media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;box-shadow:var(--shadow)}
+  .kpi b{display:block;font-family:Georgia,serif;font-size:1.6rem;color:var(--navy)}
+  .kpi span{font-size:.76rem;color:var(--slate)}
+  .kpi .d{font-size:.7rem;font-weight:700;margin-top:3px;display:inline-block}
+  .grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
+  @media(max-width:1000px){.grid2{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px}
+  .card .ch{padding:12px 16px;border-bottom:1px solid var(--line);font-weight:700;color:var(--navy);font-size:.93rem;display:flex;justify-content:space-between;align-items:center}
+  .ch .badge{font-size:.68rem;font-weight:700;color:var(--success);background:var(--success-soft);border:1px solid #c2e6d4;padding:3px 8px;border-radius:20px}
+  table{width:100%;border-collapse:collapse;font-size:.85rem}
+  th{text-align:left;color:var(--slate);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;padding:9px 16px;border-bottom:1px solid var(--line)}
+  td{padding:10px 16px;border-bottom:1px solid var(--line)}
+  tr:last-child td{border-bottom:0}
+  tr.click{cursor:pointer}tr.click:hover{background:var(--accent-soft)}
+  .tag{font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:20px}
+  .t-new{background:var(--accent-soft);color:var(--accent)}.t-hot{background:var(--danger-soft);color:var(--danger)}
+  .t-won{background:var(--success-soft);color:var(--success)}.t-wait{background:var(--warn-soft);color:var(--gold-d)}
+  .dl{padding:11px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;font-size:.85rem}
+  .dl:last-child{border-bottom:0}.dl .w{font-weight:700}.dl .w.red{color:var(--danger)}.dl .w.amber{color:var(--warn)}
+  .bar{display:flex;align-items:center;gap:10px;padding:8px 16px;font-size:.85rem}
+  .bar .nm{flex:0 0 92px;color:var(--slate)}.bar .tr{flex:1;height:8px;background:var(--bg);border-radius:6px;overflow:hidden}
+  .bar .fl{height:100%;background:linear-gradient(90deg,var(--navy2),var(--accent));border-radius:6px}.bar .nu{flex:0 0 34px;text-align:right;font-weight:700;color:var(--navy)}
+  /* kanban */
+  .kan{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:1000px){.kan{grid-template-columns:repeat(2,1fr)}}
+  .col{background:#eef2f7;border-radius:12px;padding:10px}
+  .col h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--slate);margin:4px 6px 10px;display:flex;justify-content:space-between}
+  .lead-c{background:#fff;border:1px solid var(--line);border-radius:9px;padding:11px;margin-bottom:9px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .lead-c:hover{border-color:var(--accent)}
+  .lead-c .nm{font-weight:600;font-size:.88rem}.lead-c .mt{font-size:.78rem;color:var(--slate);margin:2px 0 6px}
+  .lead-c .row{display:flex;justify-content:space-between;align-items:center}
+  .lead-c .val{font-weight:700;color:var(--navy);font-size:.82rem}
+  /* agent chat */
+  .chatwrap{max-width:780px;margin:0 auto}
+  .chat{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);min-height:340px;padding:18px;display:flex;flex-direction:column;gap:12px}
+  .cmsg{max-width:86%;padding:11px 14px;border-radius:12px;font-size:.9rem;line-height:1.5;animation:fade .25s}
+  @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1}}
+  .cmsg.u{align-self:flex-end;background:var(--navy);color:#fff}
+  .cmsg.a{align-self:flex-start;background:var(--bg);border:1px solid var(--line)}
+  .cmsg.a b{color:var(--navy)}
+  .cmsg.a .src{margin-top:8px;font-size:.74rem;color:var(--slate);border-top:1px dashed var(--line);padding-top:6px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .chip{background:#fff;border:1px solid var(--line);border-radius:20px;padding:8px 13px;font-size:.82rem;cursor:pointer;color:var(--navy);font-weight:500}
+  .chip:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .agent-hd{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+  .agent-hd .av{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,var(--accent),#5b54d6);display:grid;place-items:center;color:#fff;font-size:1.2rem}
+  /* email */
+  .mail{display:grid;grid-template-columns:300px 1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;box-shadow:var(--shadow)}
+  @media(max-width:900px){.mail{grid-template-columns:1fr}}
+  .mlist{border-right:1px solid var(--line);max-height:520px;overflow-y:auto}
+  .mitem{padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+  .mitem:hover,.mitem.sel{background:var(--accent-soft)}
+  .mitem .fr{font-weight:600;font-size:.86rem;display:flex;justify-content:space-between}
+  .mitem .su{font-size:.83rem;color:var(--ink);margin:2px 0}
+  .mitem .pv{font-size:.78rem;color:var(--slate);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lbl{font-size:.64rem;font-weight:700;padding:1px 7px;border-radius:20px;margin-left:6px}
+  .reader{padding:18px}
+  .reader .rh{font-size:1.05rem;font-weight:700;color:var(--navy)}
+  .reader .meta{color:var(--slate);font-size:.8rem;margin:4px 0 14px}
+  .reader .body{font-size:.9rem;line-height:1.6}
+  .draftbox{margin-top:16px;background:var(--accent-soft);border:1px solid #cfe0ff;border-radius:10px;padding:14px;font-size:.88rem;line-height:1.55;display:none}
+  .draftbox.show{display:block;animation:fade .3s}
+  /* calendar */
+  .cal{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  @media(max-width:900px){.cal{grid-template-columns:1fr 1fr}}
+  .day{background:#fff;border:1px solid var(--line);border-radius:10px;min-height:230px;padding:8px}
+  .day h5{margin:2px 4px 8px;font-size:.78rem;color:var(--slate);text-transform:uppercase;letter-spacing:.03em}
+  .ev{border-radius:7px;padding:7px 8px;margin-bottom:7px;font-size:.76rem;cursor:pointer;border-left:3px solid}
+  .ev .tm{font-weight:700;display:block;font-size:.72rem}
+  .ev.court{background:var(--accent-soft);border-color:var(--accent)}
+  .ev.als{background:var(--danger-soft);border-color:var(--danger)}
+  .ev.consult{background:var(--success-soft);border-color:var(--success)}
+  .ev.misc{background:var(--bg);border-color:var(--slate)}
+  /* documents */
+  .docgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:1000px){.docgrid{grid-template-columns:repeat(2,1fr)}}
+  .doc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+  .doc .ic{font-size:1.5rem}.doc h4{font-size:.95rem;margin:8px 0 4px;font-family:inherit;color:var(--navy)}
+  .doc p{font-size:.8rem;color:var(--slate);margin:0 0 12px}
+  .docprev{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);margin-top:16px;display:none}
+  .docprev.show{display:block;animation:fade .3s}
+  .docprev .pp{padding:22px 26px;font-size:.86rem;line-height:1.7;white-space:pre-wrap;font-family:Georgia,serif;color:#222;max-height:380px;overflow-y:auto}
+  /* marketing */
+  .composer{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:16px;margin-bottom:16px}
+  .composer textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:9px;padding:11px;font:inherit;font-size:.88rem;resize:vertical}
+  .queue .qitem{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line)}
+  .queue .qitem:last-child{border-bottom:0}
+  .ch-ico{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;color:#fff;font-size:.85rem;flex:0 0 auto}
+  .ch-gbp{background:#4285F4}.ch-fb{background:#1877F2}.ch-li{background:#0a66c2}
+  .qitem .qt{flex:1;font-size:.85rem}.qitem .qt .qm{color:var(--slate);font-size:.76rem}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:12px 20px;border-radius:10px;font-size:.86rem;box-shadow:var(--shadow);opacity:0;transition:.3s;z-index:99}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .muted{color:var(--slate);font-size:.85rem}
+</style>
+</head>
+<body>
+  <aside class="side">
+    <div class="logo"><span class="mk">BP</span><span><span class="lt">Beck Peistrup</span><br><span class="ls">Mission Control</span></span></div>
+    <ul class="nav" id="nav">
+      <li class="sec">Practice</li>
+      <li data-v="dashboard" class="active"><span class="ico">📊</span> Dashboard</li>
+      <li data-v="intake"><span class="ico">📥</span> Intake Pipeline <span class="pip">18</span></li>
+      <li data-v="matters"><span class="ico">📁</span> Matters</li>
+      <li data-v="deadlines"><span class="ico">🚦</span> Deadlines <span class="pip">3</span></li>
+      <li data-v="calendar"><span class="ico">📅</span> Calendar</li>
+      <li class="sec">Casework</li>
+      <li data-v="agent"><span class="ico">🤖</span> AI Agent</li>
+      <li data-v="documents"><span class="ico">📄</span> Documents</li>
+      <li data-v="evidence"><span class="ico">🔎</span> Evidence &amp; AI Review</li>
+      <li class="sec">Communication</li>
+      <li data-v="email"><span class="ico">✉️</span> Email <span class="pip">5</span></li>
+      <li data-v="sms"><span class="ico">💬</span> Text / SMS</li>
+      <li data-v="portal"><span class="ico">👤</span> Client Portal</li>
+      <li class="sec">Money &amp; Growth</li>
+      <li data-v="billing"><span class="ico">💳</span> Billing &amp; Trust</li>
+      <li data-v="analytics"><span class="ico">📈</span> Analytics</li>
+      <li data-v="marketing"><span class="ico">📣</span> Marketing</li>
+      <li class="sec">Governance</li>
+      <li data-v="audit"><span class="ico">🛡️</span> Audit &amp; Security</li>
+    </ul>
+    <div class="foot">Demo · illustrative data<br><a href="index.html">← Back to proposal</a></div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div><h1 id="ptitle">Dashboard</h1><div class="sub" id="psub">Wednesday · 203 calls handled today</div></div>
+      <div class="sp"></div>
+      <input class="search" placeholder="Search clients, matters…" />
+      <span class="pill-demo">DEMO</span>
+      <button class="btn btn-gold" onclick="toast('New intake form opened')">＋ New</button>
+    </div>
+    <div class="view" id="view"></div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+<script>
+const PAGE={dashboard:["Dashboard","Wednesday · 203 calls handled today"],intake:["Intake Pipeline","18 new leads today · 0 sent to voicemail"],matters:["Matters","142 active · Beck 71 · Peistrup 68"],calendar:["Calendar","Synced with Google Calendar"],email:["Email","Synced with Gmail · AI triage on"],agent:["AI Agent","Your firm's private copilot"],documents:["Documents","Templates + automated drafting"],marketing:["Marketing","AI content + multi-channel publishing"],analytics:["Analytics","Operational + marketing intelligence"],billing:["Billing & Trust","Invoices, A/R & IOLTA trust accounting"],portal:["Client Portal","The secure client-facing view"],audit:["Audit & Security","Immutable trail · governed AI"],deadlines:["Deadlines","Ohio rules engine · auto-computed dates"],evidence:["Evidence & AI Review","Discovery intake + AI suppression flags"],sms:["Text / SMS","Two-way client texting + automations"]};
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+
+const V={};
+
+V.dashboard=()=>`
+  <div class="kpis">
+    <div class="kpi"><b>203</b><span>Calls handled today</span><div class="d" style="color:var(--accent)">0 to voicemail</div></div>
+    <div class="kpi"><b>18</b><span>New qualified leads</span><div class="d" style="color:var(--success)">▲ 5 vs avg</div></div>
+    <div class="kpi"><b>11</b><span>Consults booked</span><div class="d" style="color:var(--success)">auto-scheduled</div></div>
+    <div class="kpi"><b>3</b><span>Deadlines &lt; 72 hrs</span><div class="d" style="color:var(--danger)">needs eyes</div></div>
+  </div>
+  <div class="card" style="border-left:3px solid var(--accent)">
+    <div class="ch">🤖 Ask Mission Control <span class="badge">private copilot</span></div>
+    <div style="padding:14px 16px">
+      <p class="muted" style="margin:0 0 10px">Try a question — the agent reads across your matters, calendar, and email.</p>
+      <div class="chips">
+        <span class="chip" onclick="go('agent');setTimeout(()=>ask('risk'),250)">What deadlines are at risk this week?</span>
+        <span class="chip" onclick="go('agent');setTimeout(()=>ask('leads'),250)">Summarize today's new leads</span>
+        <span class="chip" onclick="go('agent');setTimeout(()=>ask('continuance'),250)">Draft a continuance for State v. H.</span>
+      </div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="ch">Today's intake pipeline <span class="badge">auto-captured</span></div>
+      <table><thead><tr><th>Caller</th><th>Matter</th><th>Source</th><th>Value</th><th>Status</th></tr></thead><tbody>
+        <tr class="click" onclick="go('intake')"><td>M. R.</td><td>OVI / OMVI</td><td>Phone · 2:14a</td><td>$6,500</td><td><span class="tag t-hot">Urgent — ALS</span></td></tr>
+        <tr class="click" onclick="go('intake')"><td>J. K.</td><td>Dissolution</td><td>Web form</td><td>$4,000</td><td><span class="tag t-new">New</span></td></tr>
+        <tr class="click" onclick="go('intake')"><td>A. T.</td><td>Juvenile</td><td>Phone · 4:41p</td><td>$3,500</td><td><span class="tag t-new">New</span></td></tr>
+        <tr class="click" onclick="go('intake')"><td>D. S.</td><td>OVI (2nd)</td><td>Referral</td><td>$8,000</td><td><span class="tag t-hot">Hot</span></td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <div class="ch">Deadlines &amp; court dates</div>
+      <div class="dl"><span>ALS appeal — M. R.</span><span class="w red">2 days</span></div>
+      <div class="dl"><span>Arraignment — D. S.</span><span class="w amber">5 days</span></div>
+      <div class="dl"><span>Pretrial — State v. H.</span><span class="w amber">6 days</span></div>
+      <div class="dl"><span>Discovery — Fischer</span><span class="w">11 days</span></div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="ch">Active caseload by attorney</div><div style="padding:8px 0 10px">
+      <div class="bar"><span class="nm">R. Beck</span><span class="tr"><span class="fl" style="width:92%"></span></span><span class="nu">71</span></div>
+      <div class="bar"><span class="nm">J. Peistrup</span><span class="tr"><span class="fl" style="width:88%"></span></span><span class="nu">68</span></div>
+      <div class="bar"><span class="nm">Unassigned</span><span class="tr"><span class="fl" style="width:4%;background:var(--gold)"></span></span><span class="nu">3</span></div>
+    </div></div>
+    <div class="card"><div class="ch">Calls by source today</div><div style="padding:8px 0 10px">
+      <div class="bar"><span class="nm">Phone</span><span class="tr"><span class="fl" style="width:74%"></span></span><span class="nu">151</span></div>
+      <div class="bar"><span class="nm">Web form</span><span class="tr"><span class="fl" style="width:21%"></span></span><span class="nu">42</span></div>
+      <div class="bar"><span class="nm">Referral</span><span class="tr"><span class="fl" style="width:5%"></span></span><span class="nu">10</span></div>
+    </div></div>
+  </div>`;
+
+V.intake=()=>`
+  <div class="kan">
+    <div class="col"><h4>New <span>4</span></h4>
+      ${leadCard('M. R.','OVI / OMVI · Marysville','$6,500','t-hot','Urgent — ALS')}
+      ${leadCard('J. K.','Dissolution · Plain City','$4,000','t-new','New')}
+      ${leadCard('A. T.','Juvenile · Richwood','$3,500','t-new','New')}
+      ${leadCard('R. M.','OVI · Marysville','$6,000','t-new','New')}
+    </div>
+    <div class="col"><h4>Contacted <span>3</span></h4>
+      ${leadCard('D. S.','OVI (2nd) · referral','$8,000','t-hot','Hot')}
+      ${leadCard('B. W.','Custody','$5,000','t-wait','Awaiting docs')}
+      ${leadCard('T. L.','Domestic','$4,500','t-wait','Callback set')}
+    </div>
+    <div class="col"><h4>Consult booked <span>3</span></h4>
+      ${leadCard('L. P.','Custody · 2pm Thu','$5,000','t-won','Consult set')}
+      ${leadCard('C. N.','OVI · 9am Fri','$6,500','t-won','Consult set')}
+      ${leadCard('G. R.','Dissolution','$4,000','t-won','Consult set')}
+    </div>
+    <div class="col"><h4>Retained <span>2</span></h4>
+      ${leadCard('H. F.','OVI · engaged','$7,000','t-won','Signed')}
+      ${leadCard('S. K.','Juvenile · engaged','$3,800','t-won','Signed')}
+    </div>
+  </div>
+  <p class="muted" style="margin-top:14px">Every card was created automatically from a call, web form, or referral — tap one to open the captured intake.</p>`;
+
+function leadCard(nm,mt,val,tag,tl){return `<div class="lead-c" onclick="leadDetail('${nm}','${mt}')"><div class="nm">${nm}</div><div class="mt">${mt}</div><div class="row"><span class="val">${val}</span><span class="tag ${tag}">${tl}</span></div></div>`;}
+function leadDetail(nm,mt){toast('Opening intake record for '+nm+' — '+mt);}
+
+V.matters=()=>`
+  <div class="card"><div class="ch">Active matters <span class="badge">142 open</span></div>
+  <table><thead><tr><th>Matter</th><th>Client</th><th>Type</th><th>Attorney</th><th>Next deadline</th><th>Status</th></tr></thead><tbody>
+    ${matterRow('State v. R.','Marcus R.','OVI','Beck','ALS appeal · 2d','t-hot','Active')}
+    ${matterRow('State v. H.','—','OVI','Beck','Pretrial · 6d','t-wait','Active')}
+    ${matterRow('In re S.K.','S. Kline','Juvenile','Peistrup','Hearing · 9d','t-new','Active')}
+    ${matterRow('Fischer v. Fischer','J. Fischer','Dissolution','Peistrup','Discovery · 11d','t-new','Active')}
+    ${matterRow('State v. D.S.','D. Silva','OVI (2nd)','Beck','Arraignment · 5d','t-wait','Active')}
+    ${matterRow('Patel — Custody','L. Patel','Custody','Peistrup','Hearing · 14d','t-new','Active')}
+  </tbody></table></div>
+  <p class="muted">Tap a matter to see its timeline, documents, and deadlines.</p>`;
+function matterRow(c,cl,ty,at,dl,tag,st){return `<tr class="click" onclick="toast('Opening matter: ${c}')"><td><b>${c}</b></td><td>${cl}</td><td>${ty}</td><td>${at}</td><td><span class="tag ${tag}">${dl}</span></td><td>${st}</td></tr>`;}
+
+V.calendar=()=>`
+  <div class="card" style="margin-bottom:14px"><div class="ch">This week <span class="badge">🔗 Google Calendar synced</span></div></div>
+  <div class="cal">
+    <div class="day"><h5>Mon</h5>
+      ${ev('court','9:00','Pretrial · State v. M.')}${ev('consult','1:30','Consult · C. Nguyen (OVI)')}</div>
+    <div class="day"><h5>Tue · today</h5>
+      ${ev('als','By EOD','ALS appeal — Marcus R.')}${ev('consult','2:00','Consult · L. Patel')}${ev('misc','4:30','Team check-in')}</div>
+    <div class="day"><h5>Wed</h5>
+      ${ev('court','8:30','Arraignment · D. Silva')}${ev('consult','11:00','Consult · OVI intake')}</div>
+    <div class="day"><h5>Thu</h5>
+      ${ev('court','10:00','Hearing · In re S.K.')}${ev('misc','3:00','Doc review · Fischer')}</div>
+    <div class="day"><h5>Fri</h5>
+      ${ev('consult','9:00','Consult · OVI (C.N.)')}${ev('court','1:00','Pretrial · State v. H.')}</div>
+  </div>
+  <p class="muted" style="margin-top:14px">Court dates, ALS deadlines, and auto-booked consults all flow onto one calendar — and back to each attorney's Google Calendar.</p>`;
+function ev(cls,tm,t){return `<div class="ev ${cls}" onclick="toast('${t}')"><span class="tm">${tm}</span>${t}</div>`;}
+
+const MAILS=[
+  {fr:'Marcus R.',lbl:'New client',lc:'t-new',su:'Re: my OVI — what do I do about my license?',pv:'Thank you for the call last night, I have a question about driving to work…',
+   body:`Thank you for the call last night — it really helped to talk to someone.\n\nMy main worry is my license. I drive for work and I can't lose it. The intake assistant mentioned something about an appeal with a short deadline? Can someone walk me through what happens next and whether I can still drive in the meantime?\n\nThanks,\nMarcus`,
+   draft:`Hi Marcus,\n\nGood to connect — you're in good hands. On the license: because there's an administrative suspension in play, there's a limited window to request driving privileges, and we're already on it. Mr. Beck will cover your options at your 9:00 consult, including limited privileges for work.\n\nPlease bring: your citation, the BMV paperwork you were given, and your work schedule.\n\n— Beck Peistrup`},
+  {fr:'Union Co. Clerk',lbl:'Court',lc:'t-hot',su:'Notice of hearing — State v. H.',pv:'A pretrial has been scheduled in the above matter for…',
+   body:`A pretrial has been scheduled in State v. H. for next Friday at 1:00 PM, Courtroom 2.\n\nPlease confirm attendance.`,
+   draft:`Confirmed — Mr. Beck will appear for the pretrial in State v. H. on Friday at 1:00 PM, Courtroom 2. Thank you.\n\n— Beck Peistrup`},
+  {fr:'Jenna K.',lbl:'New client',lc:'t-new',su:'Divorce consultation — times?',pv:'Thanks for the two consult times, the Thursday one works…',
+   body:`Thanks for sending the two consult times. Thursday at 2:00 works for me. Should I bring anything?`,
+   draft:`Hi Jenna,\n\nWonderful — you're booked Thursday at 2:00 with Mr. Peistrup. Helpful to bring: a rough list of assets/accounts, any prior agreements, and your children's school/care schedule. No need for anything formal yet.\n\n— Beck Peistrup`},
+  {fr:'LexisNexis',lbl:'Vendor',lc:'t-wait',su:'Your subscription invoice',pv:'Your monthly invoice is ready…',body:`Your monthly invoice is ready and attached.`,draft:`Received — forwarding to accounts payable. Thank you.`},
+  {fr:'Past client (G.)',lbl:'Review',lc:'t-won',su:'Thank you!!',pv:'You guys were amazing, case dismissed…',body:`You guys were amazing — case dismissed! I can't thank Mr. Beck enough.`,draft:`That news made our day, thank you! If you're willing, a quick Google review would mean the world and helps others find us: [review link]. — Beck Peistrup`}
+];
+const LBLC={'New client':'t-new','Court':'t-hot','Vendor':'t-wait','Review':'t-won'};
+V.email=()=>`
+  <div class="mail">
+    <div class="mlist" id="mlist">
+      ${MAILS.map((m,i)=>`<div class="mitem ${i===0?'sel':''}" onclick="openMail(${i},this)">
+        <div class="fr">${m.fr}<span class="lbl ${m.lc}" style="background:var(--bg)">${m.lbl}</span></div>
+        <div class="su">${m.su}</div><div class="pv">${m.pv}</div></div>`).join('')}
+    </div>
+    <div class="reader" id="reader"></div>
+  </div>
+  <p class="muted" style="margin-top:12px">AI triages every email by type and drafts a reply in your voice — you just review and send.</p>`;
+function openMail(i,elm){document.querySelectorAll('.mitem').forEach(x=>x.classList.remove('sel'));if(elm)elm.classList.add('sel');const m=MAILS[i];
+  document.getElementById('reader').innerHTML=`<div class="rh">${m.su}</div><div class="meta">From <b>${m.fr}</b> · labeled <b>${m.lbl}</b> by AI</div>
+   <div class="body">${m.body.replace(/\n/g,'<br>')}</div>
+   <button class="btn btn-soft" style="margin-top:14px" onclick="document.getElementById('db').classList.add('show')">✨ AI draft reply</button>
+   <div class="draftbox" id="db"><b>Suggested reply</b><br><br>${m.draft.replace(/\n/g,'<br>')}<br><br>
+   <button class="btn btn-navy" onclick="toast('Reply sent')">Send</button> <button class="btn btn-ghost" onclick="toast('Saved to drafts')">Edit</button></div>`;}
+
+const ANS={
+  risk:{q:"What deadlines are at risk this week?",a:`<b>3 deadlines need attention in the next 72 hours:</b><br>• <b>ALS appeal — Marcus R. (OVI)</b> — due in ~2 days. Highest priority; the intake flagged it overnight.<br>• <b>Arraignment — D. Silva (OVI 2nd)</b> — 5 days; file is complete.<br>• <b>Pretrial — State v. H.</b> — 6 days; Mr. Beck confirmed attendance.<br><br>Nothing else is at risk. Want me to draft the ALS filing for Marcus and put it in his matter?<div class="src">Sources: Matters · Calendar · Intake (M. R.)</div>`},
+  leads:{q:"Summarize today's new leads",a:`<b>18 new leads today, 0 lost to voicemail.</b> Highlights:<br>• <b>Marcus R.</b> — OVI, Marysville, breath test refused. $6,500 est. <b>Urgent (ALS).</b><br>• <b>D. Silva</b> — OVI 2nd, referral. $8,000 est. Hot.<br>• <b>Jenna K.</b> — dissolution, 2 kids. Consult times sent.<br>• <b>A. T.</b> — juvenile, possible detention hearing.<br><br>OVI accounts for ~60% of today's lead value. 11 consults already auto-booked.<div class="src">Sources: Intake pipeline (today)</div>`},
+  continuance:{q:"Draft a continuance for State v. H.",a:`Drafted a <b>Motion for Continuance</b> for State v. H. (pretrial, Union County). It cites counsel's scheduling conflict, notes no prior continuance requested, and leaves a signature block for Mr. Beck.<br><br>I've saved it to the matter and to <b>Documents</b> for review.<div class="src">Action: draft saved · Matter: State v. H.</div>`},
+  contacted:{q:"Which leads haven't been contacted?",a:`All 18 leads have been auto-acknowledged (call, text-back, or email). <b>2 are awaiting a human callback</b> you set: B. W. (custody — awaiting documents) and T. L. (domestic — callback scheduled 3:00). Want me to send both a holding update?<div class="src">Sources: Intake pipeline</div>`},
+  update:{q:"Draft an OVI client update email",a:`Drafted a plain-English status email for an OVI client: what happens at arraignment, the ALS/driving-privileges timeline, and what to bring to the next meeting. Saved to Documents — want me to personalize it for Marcus R.?<div class="src">Action: draft saved</div>`}
+};
+V.agent=()=>`<div class="chatwrap">
+  <div class="agent-hd"><div class="av">🤖</div><div><h3>Mission Control Copilot</h3><div class="muted">Private to the firm · reads your matters, calendar &amp; email · never trained on your data</div></div></div>
+  <div class="chat" id="chat">
+    <div class="cmsg a">Good afternoon. I can summarize leads, surface deadlines at risk, draft documents and emails, or pull up a matter. Tap a question to start. <div class="src">Illustrative — responses are canned for this demo.</div></div>
+  </div>
+  <div class="chips">
+    <span class="chip" onclick="ask('risk')">What deadlines are at risk this week?</span>
+    <span class="chip" onclick="ask('leads')">Summarize today's new leads</span>
+    <span class="chip" onclick="ask('continuance')">Draft a continuance for State v. H.</span>
+    <span class="chip" onclick="ask('contacted')">Which leads haven't been contacted?</span>
+    <span class="chip" onclick="ask('update')">Draft an OVI client update email</span>
+  </div></div>`;
+function ask(key){const a=ANS[key];if(!a)return;const c=document.getElementById('chat');if(!c){go('agent');setTimeout(()=>ask(key),250);return;}
+  c.insertAdjacentHTML('beforeend',`<div class="cmsg u">${a.q}</div>`);c.scrollTop=c.scrollHeight;
+  const tip=document.createElement('div');tip.className='cmsg a';tip.textContent='…';c.appendChild(tip);c.scrollTop=c.scrollHeight;
+  setTimeout(()=>{tip.innerHTML=a.a;c.scrollTop=c.scrollHeight;},800);}
+
+const DOCS=[
+  {ic:'📝',t:'Engagement Letter',d:'Auto-filled from the matter',k:'eng'},
+  {ic:'🚗',t:'OVI Intake Summary',d:'From the captured call',k:'ovi'},
+  {ic:'⚖️',t:'Motion to Continue',d:'Court-ready draft',k:'cont'},
+  {ic:'📋',t:'Discovery Request',d:'Standard OVI demand',k:'disc'},
+  {ic:'💵',t:'Fee Agreement',d:'Flat-fee OVI template',k:'fee'},
+  {ic:'✉️',t:'Client Update Letter',d:'Plain-English status',k:'upd'}
+];
+const DOCTEXT={
+  eng:`BECK PEISTRUP, LTD\nEngagement Letter\n\nClient: Marcus R.\nMatter: OVI / OMVI defense (Union County)\nAttorney: Robert Beck, Jr.\n\nDear Marcus,\n\nThank you for retaining Beck Peistrup, LTD to represent you in connection with your OVI charge in Union County. This letter confirms the scope of our representation, our flat fee, and what you can expect at each stage...\n\n[Auto-generated from the matter — review before sending.]`,
+  ovi:`OVI INTAKE SUMMARY  (auto-generated)\n\nCaller: Marcus R. · (937) 555-0148\nCaptured: 2:14 AM (after-hours AI agent)\nMatter: OVI / OMVI — alleged first offense\nJurisdiction: Marysville · Union County\n\nKey facts: Stopped ~1:40 AM on Rt 33; breath test refused; vehicle impounded; released.\nFlags: ⏰ ALS in effect — appeal window short. Priority.\nConflict check: clear.\nRecommended: Beck (OVI) — consult booked 9:00 AM.`,
+  cont:`IN THE MUNICIPAL COURT OF UNION COUNTY, OHIO\n\nState of Ohio,\n   Plaintiff,\nv.                                  Case No. ____\nH.,\n   Defendant.\n\nMOTION FOR CONTINUANCE\n\nNow comes the Defendant, by and through counsel, and respectfully moves this Court to continue the pretrial currently set for [date], for the reason that undersigned counsel has a scheduling conflict. No prior continuance has been requested...\n\nRespectfully submitted,\n_______________________\nRobert Beck, Jr.`,
+  disc:`DEFENDANT'S DEMAND FOR DISCOVERY\n\nDefendant requests, pursuant to Crim.R. 16, all materials including: the cruiser/body-cam video, calibration and maintenance records for any breath-testing instrument, the officer's NHTSA certification, field-sobriety notes, and all written/recorded statements...`,
+  fee:`FLAT-FEE AGREEMENT — OVI DEFENSE\n\nThis agreement sets a flat fee of $______ for representation through [stage]. The fee covers: consultation, ALS appeal, arraignment, pretrial negotiation, and motion practice as warranted...`,
+  upd:`Dear [Client],\n\nHere's where things stand and what to expect next. At arraignment, you'll enter a plea — we'll typically enter "not guilty" to preserve your options. On your license: there is a limited window to request driving privileges, which we are handling. Please bring [documents] to our next meeting...`
+};
+V.documents=()=>`
+  <div class="docgrid">
+    ${DOCS.map(d=>`<div class="doc"><div class="ic">${d.ic}</div><h4>${d.t}</h4><p>${d.d}</p><button class="btn btn-soft" onclick="genDoc('${d.k}','${d.t}')">✨ Generate</button></div>`).join('')}
+  </div>
+  <div class="docprev" id="docprev"></div>`;
+function genDoc(k,t){const p=document.getElementById('docprev');p.classList.add('show');
+  p.innerHTML=`<div class="ch">${t} <span class="badge">auto-generated</span></div><div class="pp">${DOCTEXT[k]}</div>
+   <div style="padding:12px 16px;border-top:1px solid var(--line)"><button class="btn btn-navy" onclick="toast('Sent to client for e-signature')">Send for e-sign</button> <button class="btn btn-ghost" onclick="toast('Saved to matter')">Save to matter</button></div>`;
+  p.scrollIntoView({behavior:'smooth',block:'nearest'});}
+
+let QUEUE=[
+  {ch:'ch-gbp',ico:'G',t:'HB 37 “Liv’s Law”: what changed for Ohio OVI',m:'Google Business · scheduled Tue 9:00a',pub:false},
+  {ch:'ch-fb',ico:'f',t:'5 things to do in the first 24 hours after an OVI arrest',m:'Facebook · scheduled Wed 12:00p',pub:false},
+  {ch:'ch-li',ico:'in',t:'Why field sobriety tests are more beatable than people think',m:'LinkedIn · draft',pub:false},
+  {ch:'ch-gbp',ico:'G',t:'Client review request — automated after case close',m:'Google Business · published',pub:true}
+];
+V.marketing=()=>`
+  <div class="composer">
+    <div class="ch" style="border:0;padding:0 0 10px">✨ AI content composer</div>
+    <textarea id="mkt" placeholder="Topic, e.g. 'OVI checkpoints over the holiday weekend'"></textarea>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-soft" onclick="draftPost()">Draft with AI</button>
+      <button class="btn btn-ghost" onclick="toast('Added to queue')">Add to queue</button>
+      <span class="muted" style="align-self:center">Publishes to Google Business, Facebook &amp; LinkedIn</span>
+    </div>
+  </div>
+  <div class="card"><div class="ch">Publishing queue <span class="badge">multi-channel</span></div>
+    <div class="queue" id="queue">${renderQueue()}</div>
+  </div>
+  <p class="muted">Reviews requests, OVI tips, and law-change explainers — drafted by AI, approved by you, published on schedule.</p>`;
+function renderQueue(){return QUEUE.map((q,i)=>`<div class="qitem"><span class="ch-ico ${q.ch}">${q.ico}</span>
+  <span class="qt">${q.t}<div class="qm">${q.m}</div></span>
+  ${q.pub?'<span class="tag t-won">Published</span>':`<button class="btn btn-navy" onclick="pub(${i})">Publish</button>`}</div>`).join('');}
+function pub(i){QUEUE[i].pub=true;QUEUE[i].m=QUEUE[i].m.split('·')[0]+'· published';document.getElementById('queue').innerHTML=renderQueue();toast('Published to '+(QUEUE[i].ch==='ch-fb'?'Facebook':QUEUE[i].ch==='ch-li'?'LinkedIn':'Google Business'));}
+function draftPost(){const v=document.getElementById('mkt').value.trim()||'OVI checkpoints this weekend';
+  document.getElementById('mkt').value=`⚖️ ${v}\n\nIf you're stopped at an OVI checkpoint in Union County, remember: you must provide license and registration, but you are not required to answer questions about where you've been. Stay calm, be polite, and call us before you say more.\n\nCharged with an OVI? Beck Peistrup defends drivers across Marysville and Union County. Free consultation: (937) ___-____.\n\n#OVI #Marysville #UnionCounty`;
+  toast('Draft generated — review & queue it');}
+
+function funnel(lbl,n,pct,w){return `<div class="bar"><span class="nm" style="flex:0 0 132px">${lbl}</span><span class="tr"><span class="fl" style="width:${w}%"></span></span><span class="nu" style="flex:0 0 92px;text-align:right">${n} · ${pct}</span></div>`;}
+
+V.analytics=()=>`
+  <div class="kpis">
+    <div class="kpi"><b>11.4%</b><span>Call → retained conversion</span><div class="d" style="color:var(--success)">▲ 2.1 pts MoM</div></div>
+    <div class="kpi"><b>0:32</b><span>Avg first response</span><div class="d" style="color:var(--success)">after-hours covered</div></div>
+    <div class="kpi"><b>96%</b><span>Missed-call recovery</span><div class="d" style="color:var(--accent)">via text-back</div></div>
+    <div class="kpi"><b>$5,940</b><span>Avg revenue / matter</span><div class="d">142 active matters</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="ch">Intake conversion funnel <span class="badge">last 30 days</span></div><div style="padding:10px 0 12px">
+      ${funnel('Calls answered','1,000','100%',100)}
+      ${funnel('Qualified leads','384','38%',40)}
+      ${funnel('Consults booked','176','18%',20)}
+      ${funnel('Retained','114','11%',12)}
+    </div></div>
+    <div class="card"><div class="ch">Where matters come from</div><div style="padding:8px 0 10px">
+      <div class="bar"><span class="nm">Google / SEO</span><span class="tr"><span class="fl" style="width:58%"></span></span><span class="nu">58%</span></div>
+      <div class="bar"><span class="nm">Referral</span><span class="tr"><span class="fl" style="width:22%"></span></span><span class="nu">22%</span></div>
+      <div class="bar"><span class="nm">Google Bus.</span><span class="tr"><span class="fl" style="width:14%"></span></span><span class="nu">14%</span></div>
+      <div class="bar"><span class="nm">Direct</span><span class="tr"><span class="fl" style="width:6%"></span></span><span class="nu">6%</span></div>
+    </div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="ch">Website (Google Analytics) <span class="badge">🔗 GA4 synced</span></div>
+      <table><thead><tr><th>Metric</th><th>30 days</th><th>Trend</th></tr></thead><tbody>
+        <tr><td>Sessions</td><td>4,820</td><td><span class="tag t-won">▲ 9%</span></td></tr>
+        <tr><td>Organic share</td><td>71%</td><td><span class="tag t-won">▲ 4%</span></td></tr>
+        <tr><td>OVI page views</td><td>1,910</td><td><span class="tag t-won">▲ 12%</span></td></tr>
+        <tr><td>Call / contact clicks</td><td>268</td><td><span class="tag t-new">▲ 7%</span></td></tr>
+      </tbody></table>
+    </div>
+    <div class="card"><div class="ch">Search &amp; local (SEO / GEO)</div>
+      <table><thead><tr><th>Keyword</th><th>Rank</th><th>Local</th></tr></thead><tbody>
+        <tr><td>OVI attorney Marysville</td><td><span class="tag t-won">#1</span></td><td>Map pack</td></tr>
+        <tr><td>Union County OVI lawyer</td><td><span class="tag t-won">#2</span></td><td>Map pack</td></tr>
+        <tr><td>DUI lawyer Columbus OH</td><td><span class="tag t-hot">#19</span></td><td>—</td></tr>
+      </tbody></table>
+      <div class="dl"><span>Google Business — profile views</span><span class="w">3,140/mo</span></div>
+      <div class="dl"><span>Calls &amp; direction requests</span><span class="w">212/mo</span></div>
+      <div class="dl"><span>Reviews</span><span class="w">42 · 4.9★</span></div>
+    </div>
+  </div>
+  <div class="card"><div class="ch">🌐 AI / generative-engine visibility (GEO)</div><div style="padding:6px 0 8px">
+    <div class="dl"><span>Cited in AI answers — "OVI attorney Marysville"</span><span class="w" style="color:var(--success)">Yes · 3 of 4 engines</span></div>
+    <div class="dl"><span>Cited — "Columbus DUI lawyer"</span><span class="w red">Not yet</span></div>
+    <div class="dl"><span>Share of local AI mentions vs. competitors</span><span class="w">34%</span></div>
+  </div></div>
+  <div class="card" style="border-left:3px solid var(--accent)"><div class="ch">🤖 AI agent insights</div><div style="padding:12px 16px;font-size:.88rem;line-height:1.6">
+    • <b>OVI is your ROI engine</b> — 58% of matters, highest value, strong local rankings. Defend it.<br>
+    • <b>Family law leaks at the consult stage</b> — leads arrive but convert below OVI; tighten the follow-up sequence.<br>
+    • <b>Columbus / Franklin County is open field</b> — you don't rank or get cited by AI there yet; biggest growth lever.
+  </div></div>`;
+
+V.billing=()=>`
+  <div class="kpis">
+    <div class="kpi"><b>$84,200</b><span>Collected this month</span><div class="d" style="color:var(--success)">▲ 12%</div></div>
+    <div class="kpi"><b>$23,650</b><span>Outstanding A/R</span><div class="d" style="color:var(--warn)">7 invoices</div></div>
+    <div class="kpi"><b>$61,400</b><span>Held in trust (IOLTA)</span><div class="d" style="color:var(--accent)">31 client ledgers</div></div>
+    <div class="kpi"><b>9 days</b><span>Avg. time to pay</span><div class="d" style="color:var(--success)">▼ 4 days</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="ch">Invoices <span class="badge">AI-drafted from activity</span></div>
+      <table><thead><tr><th>Client</th><th>Matter</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+        <tr class="click" onclick="toast('Invoice opened')"><td>H. Fischer</td><td>Dissolution</td><td>$2,400</td><td><span class="tag t-hot">Overdue 14d</span></td></tr>
+        <tr class="click" onclick="toast('Invoice opened')"><td>Marcus R.</td><td>OVI</td><td>$3,500</td><td><span class="tag t-wait">Sent</span></td></tr>
+        <tr class="click" onclick="toast('Invoice opened')"><td>L. Patel</td><td>Custody</td><td>$1,800</td><td><span class="tag t-won">Paid</span></td></tr>
+        <tr class="click" onclick="toast('Invoice opened')"><td>D. Silva</td><td>OVI (2nd)</td><td>$5,000</td><td><span class="tag t-wait">Sent</span></td></tr>
+      </tbody></table>
+      <div style="padding:12px 16px;border-top:1px solid var(--line)"><button class="btn btn-soft" onclick="toast('AI drafted 3 invoices from this week’s activity')">✨ Auto-draft invoices</button> <button class="btn btn-ghost" onclick="toast('Reminders sent')">Send reminders</button></div>
+    </div>
+    <div class="card"><div class="ch">Client trust ledgers (IOLTA) <span class="badge">✓ 3-way reconciled</span></div>
+      <div class="dl"><span>D. Silva — OVI retainer</span><span class="w">$3,000</span></div>
+      <div class="dl"><span>L. Patel — custody</span><span class="w">$1,250</span></div>
+      <div class="dl"><span>Marcus R. — OVI</span><span class="w" style="color:var(--danger)">$400 · low</span></div>
+      <div class="dl"><span>H. Fischer — dissolution</span><span class="w">$2,100</span></div>
+      <div style="padding:12px 16px;border-top:1px solid var(--line);font-size:.82rem;color:var(--slate)">Bank · book · client ledgers all match. Earned vs. unearned kept separate per Ohio Rules of Professional Conduct.</div>
+    </div>
+  </div>
+  <div class="card"><div class="ch">Time tracking <span class="badge">hourly matters (family law)</span></div>
+    <div style="padding:12px 16px;border-bottom:1px solid var(--line)">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <select id="tmatter" style="flex:1;min-width:170px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:.86rem">
+          <option value="">Select a matter…</option>
+          <option>Fischer — dissolution</option>
+          <option>Patel — custody</option>
+          <option>Whitaker — custody</option>
+          <option>Owens — parenting plan</option>
+        </select>
+        <input id="tdesc" placeholder="What are you working on?" style="flex:1.4;min-width:170px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:.86rem" />
+        <span id="telapsed" style="font-family:Georgia,serif;font-size:1.05rem;color:var(--navy);min-width:62px;text-align:center">00:00</span>
+        <button id="tbtn" class="btn btn-navy" onclick="toggleTimer()">▶ Start</button>
+      </div>
+      <div class="muted" style="margin-top:8px">Pick a matter, then start the clock. Criminal matters bill flat-fee; family law bills hourly ($300/hr).</div>
+    </div>
+    <table><thead><tr><th>Matter</th><th>Entry</th><th>Time</th><th>Value</th></tr></thead><tbody id="tbody-time">
+      <tr><td>Fischer — dissolution</td><td>Client call</td><td>0.5 h</td><td>$150</td></tr>
+      <tr><td>Fischer — dissolution</td><td>Drafting motion</td><td>1.2 h</td><td>$360</td></tr>
+      <tr><td>Patel — custody</td><td>Hearing prep</td><td>0.8 h</td><td>$240</td></tr>
+    </tbody></table>
+    <div style="padding:10px 16px;border-top:1px solid var(--line)"><button class="btn btn-soft" onclick="toast('AI drafted time entries from today’s calls, emails &amp; documents')">✨ Suggest entries from activity</button></div>
+  </div>
+  <div class="card" style="border-left:3px solid var(--accent)"><div class="ch">🤖 AI agent insights</div><div style="padding:12px 16px;font-size:.88rem;line-height:1.6">
+    • <b>Trust alert:</b> Marcus R.'s retainer is below threshold — auto-draft a replenishment request before his hearing.<br>
+    • <b>Collections:</b> H. Fischer is 14 days overdue — send escalation + a payment-plan link.<br>
+    • <b>Compliance:</b> three-way reconciliation current; no earned/unearned commingling detected.
+  </div></div>`;
+
+V.portal=()=>`
+  <div class="card" style="max-width:760px;margin:0 auto">
+    <div class="ch">What your client sees <span class="badge">🔒 secure · authenticated</span></div>
+    <div style="padding:18px 20px">
+      <div style="font-family:Georgia,serif;font-size:1.1rem;color:var(--navy)">Welcome back, Marcus</div>
+      <div class="muted" style="margin-bottom:14px">Your OVI matter · Beck Peistrup, LTD</div>
+      <div style="font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--slate);margin:6px 0 6px">Case status</div>
+      <div class="dl"><span>✅ Intake complete</span><span class="w" style="color:var(--success)">Done</span></div>
+      <div class="dl"><span>📄 Engagement letter — needs your signature</span><button class="btn btn-navy" onclick="toast('e-signature flow opened')">Sign</button></div>
+      <div class="dl"><span>📅 Consultation with Mr. Beck</span><span class="w">Tomorrow 9:00a</span></div>
+      <div class="dl"><span>⏰ License (ALS) appeal</span><span class="w red">In progress</span></div>
+      <div style="font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--slate);margin:16px 0 8px">Secure message from the firm</div>
+      <div class="cmsg a" style="max-width:100%">Hi Marcus — we filed your driving-privileges request this morning. Please bring your work schedule tomorrow. — Beck Peistrup</div>
+      <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+        <button class="btn btn-soft" onclick="toast('Secure upload opened')">⬆ Upload a document</button>
+        <button class="btn btn-soft" onclick="toast('Payment page opened')">💳 Pay invoice ($3,500)</button>
+        <button class="btn btn-ghost" onclick="toast('Message composer opened')">✉ Message the firm</button>
+      </div>
+    </div>
+  </div>
+  <p class="muted" style="text-align:center;margin-top:14px">Clients self-serve — sign, pay, upload, message — all authenticated and encrypted, taking load off your admin.</p>`;
+
+V.audit=()=>`
+  <div class="kpis">
+    <div class="kpi"><b>AES-256</b><span>Encrypted at rest &amp; in transit</span><div class="d" style="color:var(--success)">enabled</div></div>
+    <div class="kpi"><b>RBAC</b><span>Role-based access</span><div class="d">attorney · staff · client</div></div>
+    <div class="kpi"><b>2FA</b><span>On all firm accounts</span><div class="d" style="color:var(--success)">enforced</div></div>
+    <div class="kpi"><b>Firm-owned</b><span>Your database · your AI keys</span><div class="d" style="color:var(--accent)">no vendor pipeline</div></div>
+  </div>
+  <div class="card"><div class="ch">Immutable audit trail <span class="badge">append-only</span></div>
+    <table><thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Record</th></tr></thead><tbody>
+      <tr><td>2:14a</td><td>AI Intake Agent</td><td>Created intake · ran conflict check</td><td>Marcus R. (OVI)</td></tr>
+      <tr><td>2:15a</td><td>System</td><td>Flagged ALS deadline</td><td>Marcus R.</td></tr>
+      <tr><td>8:32a</td><td>Dana (staff)</td><td>Viewed matter</td><td>State v. H.</td></tr>
+      <tr><td>9:05a</td><td>AI Agent</td><td>Drafted motion to continue</td><td>State v. H.</td></tr>
+      <tr><td>9:40a</td><td>R. Beck</td><td>Approved &amp; e-filed</td><td>State v. H.</td></tr>
+      <tr><td>11:20a</td><td>System</td><td>Routed billing call to admin</td><td>D. Silva</td></tr>
+    </tbody></table>
+  </div>
+  <div class="card" style="border-left:3px solid var(--success)"><div class="ch">Why this beats an off-the-shelf AI agent</div><div style="padding:12px 16px;font-size:.88rem;line-height:1.6">
+    Every action — human or AI — is logged to an append-only trail you could show a bar auditor. The AI runs with scoped, role-based permissions, and a human approves anything that leaves the building. No untrusted third-party "skills," no client data leaving your infrastructure. <b>Governed, auditable, and yours.</b>
+  </div></div>`;
+
+V.deadlines=()=>`
+  <div class="card" style="border-left:3px solid var(--accent);margin-bottom:16px"><div class="ch">⚙️ Deadline rules engine <span class="badge">Ohio rules · auto-computed</span></div>
+    <div style="padding:12px 16px;font-size:.88rem;color:var(--slate)">Enter the triggering event once — the engine computes every downstream deadline from Ohio statute and recomputes if the facts change. <b style="color:var(--danger)">Illustrative dates &amp; cites; Beck validates the rule set.</b></div>
+  </div>
+  <div class="card"><div class="ch">Trigger: OVI arrest — Marcus R. <span class="badge">stop 5/20 · 1:40 AM</span></div>
+    <table><thead><tr><th>Deadline</th><th>Date</th><th>Left</th><th>Rule (illustrative)</th><th></th></tr></thead><tbody>
+      <tr><td><b>ALS appeal</b></td><td>Jun 19</td><td><span class="tag t-hot">2 days</span></td><td>R.C. 4511.197 — at/within 30d of initial appearance</td><td><button class="btn btn-navy" onclick="toast('Drafting ALS appeal…')">Draft</button></td></tr>
+      <tr><td>Initial appearance</td><td>May 25</td><td><span class="tag t-wait">5 days</span></td><td>Crim.R. 5 — promptly after arrest</td><td><button class="btn btn-ghost" onclick="toast('Added to calendar')">Calendar</button></td></tr>
+      <tr><td>Demand for discovery</td><td>file now</td><td><span class="tag t-new">open</span></td><td>Crim.R. 16</td><td><button class="btn btn-ghost" onclick="toast('Draft saved to matter')">Draft</button></td></tr>
+      <tr><td>Motion to suppress</td><td>per pretrial order</td><td><span class="tag t-new">track</span></td><td>Crim.R. 12 — before trial</td><td><button class="btn btn-ghost" onclick="toast('Tracking')">Track</button></td></tr>
+      <tr><td><b>Speedy-trial clock</b></td><td>Aug 18</td><td><span class="tag t-wait">90 days</span></td><td>R.C. 2945.71 — M1 90d (×3 if jailed)</td><td><button class="btn btn-ghost" onclick="toast('Clock pinned to matter')">Pin</button></td></tr>
+    </tbody></table>
+    <div style="padding:10px 16px;border-top:1px solid var(--line)"><span class="badge">🔗 Ohio Courts e-Filing connected</span> &nbsp;<button class="btn btn-soft" onclick="toast('Filed with Union County — confirmation logged to the audit trail')">File with court</button></div>
+  </div>
+  <div class="card"><div class="ch">Trigger: Dissolution served — Fischer <span class="badge">family law</span></div>
+    <table><thead><tr><th>Deadline</th><th>Date</th><th>Left</th><th>Rule (illustrative)</th></tr></thead><tbody>
+      <tr><td>Answer / response</td><td>Jun 17</td><td><span class="tag t-wait">28 days</span></td><td>Civ.R. 12 — 28d after service</td></tr>
+      <tr><td>Financial disclosures</td><td>Jun 24</td><td><span class="tag t-new">track</span></td><td>Local rule — affidavit of property</td></tr>
+      <tr><td>Temporary orders hearing</td><td>Jul 02</td><td><span class="tag t-new">track</span></td><td>set by court</td></tr>
+    </tbody></table>
+  </div>
+  <div class="card" style="border-left:3px solid var(--accent)"><div class="ch">🤖 AI agent insights</div><div style="padding:12px 16px;font-size:.88rem;line-height:1.6">
+    • <b>At risk:</b> Marcus R.'s ALS appeal is due in 2 days — I've drafted the filing; it needs Beck's sign-off.<br>
+    • <b>Speedy-trial:</b> 90-day clock pinned; I'll alert at 30 / 15 / 7 days out.<br>
+    • <b>Nothing slips silently</b> — every computed deadline syncs to the calendar and the responsible attorney.
+  </div></div>`;
+
+V.evidence=()=>`
+  <div class="grid2">
+    <div class="card"><div class="ch">Case files — State v. R. (Marcus R., OVI) <span class="badge">🔒 your storage</span></div>
+      <div class="dl"><span>📄 Police report (incident #25-4471)</span><button class="btn btn-soft" onclick="evReview()">AI review</button></div>
+      <div class="dl"><span>🎥 Bodycam — traffic stop (14:22)</span><button class="btn btn-ghost" onclick="toast('Transcribing bodycam…')">Transcribe</button></div>
+      <div class="dl"><span>🎥 Dash cam</span><button class="btn btn-ghost" onclick="toast('Queued for review')">Review</button></div>
+      <div class="dl"><span>📈 Breathalyzer maintenance log</span><button class="btn btn-ghost" onclick="toast('Calibration checked')">Check</button></div>
+      <div class="dl"><span>🎙 Dispatch audio</span><button class="btn btn-ghost" onclick="toast('Transcribing…')">Transcribe</button></div>
+      <div style="padding:12px 16px;border-top:1px solid var(--line)"><button class="btn btn-soft" onclick="toast('Secure upload opened')">⬆ Upload discovery</button></div>
+    </div>
+    <div class="card"><div class="ch">🤖 AI evidence review <span class="badge">suppression flags</span></div>
+      <div id="evout" style="padding:14px 16px;font-size:.88rem;color:var(--slate)">Tap <b>AI review</b> on the police report — the agent summarizes it and surfaces suppression issues.</div>
+    </div>
+  </div>
+  <p class="muted">Discovery is summarized and issue-spotted in minutes — files stay in the firm's own storage, processed with the firm's own AI keys (OpenSpecter-style), never a third-party pipeline.</p>`;
+function evReview(){var o=document.getElementById('evout');if(!o)return;o.innerHTML=`<b>Police report — AI summary</b><br>
+  Stop ~1:40 AM, Rt 33, Marysville. Officer cites "weaving." Field sobriety tests administered roadside; subject refused breath test; arrested for OVI (R.C. 4511.19).<br><br>
+  <b style="color:var(--danger)">⚑ Potential suppression issues</b>
+  <ul style="margin:8px 0 0;padding-left:18px;line-height:1.6">
+    <li><b>Basis for the stop:</b> "weaving" not tied to a marked-lanes violation or specific facts — challenge reasonable suspicion.</li>
+    <li><b>FST administration:</b> no HGN clue count or NHTSA-compliant conditions noted — Beck's NHTSA training applies.</li>
+    <li><b>Refusal advisement:</b> no notation the BMV 2255 form was read — challenge the ALS.</li>
+    <li><b>Miranda:</b> custodial questions appear before advisement — review timing.</li>
+  </ul>
+  <div style="margin-top:10px"><button class="btn btn-navy" onclick="toast('Suppression memo drafted to the matter')">Draft suppression memo</button></div>`;
+  toast('Police report reviewed');}
+
+V.sms=()=>`
+  <div class="mail">
+    <div class="mlist">
+      <div class="mitem sel"><div class="fr">Marcus R. <span class="lbl t-hot" style="background:var(--bg)">OVI</span></div><div class="pv">You: We filed your privileges request…</div></div>
+      <div class="mitem"><div class="fr">Missed → texted back</div><div class="pv">Auto: Sorry we missed you — tap to start…</div></div>
+      <div class="mitem"><div class="fr">L. Patel <span class="lbl t-won" style="background:var(--bg)">Custody</span></div><div class="pv">Reminder: consult Thu 2:00</div></div>
+      <div class="mitem"><div class="fr">Past client (G.)</div><div class="pv">Auto: review request sent</div></div>
+    </div>
+    <div class="reader">
+      <div class="rh">Marcus R. · (937) 555-0148</div><div class="meta">OVI matter · two-way SMS</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="cmsg a" style="max-width:82%">Hi Marcus, this is Beck Peistrup confirming your 9:00 AM consult tomorrow. Reply C to confirm.</div>
+        <div class="cmsg u" style="max-width:60%">C</div>
+        <div class="cmsg a" style="max-width:82%">Confirmed ✅ We also filed your driving-privileges request this morning — bring your work schedule.</div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-soft" onclick="toast('AI suggested 3 replies')">✨ Suggest reply</button>
+        <button class="btn btn-ghost" onclick="toast('Template inserted')">Templates</button>
+        <button class="btn btn-ghost" onclick="toast('Sent')">Send</button>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px"><div class="ch">Automated sequences <span class="badge">running</span></div>
+    <div class="dl"><span>📵 Missed-call text-back</span><span class="w" style="color:var(--success)">on · 96% recovery</span></div>
+    <div class="dl"><span>📅 Appointment reminders (24h / 1h)</span><span class="w" style="color:var(--success)">on</span></div>
+    <div class="dl"><span>⭐ Review request after case close</span><span class="w" style="color:var(--success)">on</span></div>
+    <div class="dl"><span>⏰ ALS / deadline reminders to clients</span><span class="w" style="color:var(--success)">on</span></div>
+  </div>`;
+
+let TMR=null, TSTART=0;
+function fmtClock(s){var m=Math.floor(s/60),x=s%60;return String(m).padStart(2,'0')+':'+String(x).padStart(2,'0');}
+function toggleTimer(){
+  var sel=document.getElementById('tmatter'), btn=document.getElementById('tbtn'), disp=document.getElementById('telapsed');
+  if(!sel||!btn||!disp) return;
+  if(!TMR){
+    if(!sel.value){ toast('Select a matter first'); sel.focus(); return; }
+    TSTART=Date.now(); sel.disabled=true;
+    btn.textContent='■ Stop'; btn.style.background='var(--danger)'; disp.style.color='var(--danger)';
+    TMR=setInterval(function(){disp.textContent=fmtClock(Math.floor((Date.now()-TSTART)/1000));},1000);
+    toast('Timer started — '+sel.value);
+  } else {
+    clearInterval(TMR); TMR=null;
+    var secs=Math.floor((Date.now()-TSTART)/1000);
+    var hrs=Math.max(0.1, Math.round(secs/360)/10);
+    var val='$'+Math.round(hrs*300).toLocaleString();
+    var desc=(document.getElementById('tdesc').value||'Work').trim();
+    var tb=document.getElementById('tbody-time');
+    if(tb){var tr=document.createElement('tr');tr.innerHTML='<td>'+sel.value+'</td><td>'+desc+'</td><td>'+hrs.toFixed(1)+' h</td><td>'+val+'</td>';tb.insertBefore(tr,tb.firstChild);}
+    disp.textContent='00:00'; disp.style.color='var(--navy)';
+    btn.textContent='▶ Start'; btn.style.background=''; sel.disabled=false; sel.value=''; document.getElementById('tdesc').value='';
+    toast('Logged '+hrs.toFixed(1)+' h ('+val+') to the matter');
+  }
+}
+
+function go(v){
+  document.querySelectorAll('#nav li').forEach(li=>li.classList.toggle('active',li.dataset.v===v));
+  document.getElementById('ptitle').textContent=PAGE[v][0];
+  document.getElementById('psub').textContent=PAGE[v][1];
+  document.getElementById('view').innerHTML=V[v]();
+  if(v==='email') setTimeout(()=>openMail(0,document.querySelector('.mitem')),30);
+  document.getElementById('view').scrollTop=0;
+}
+document.getElementById('nav').addEventListener('click',e=>{const li=e.target.closest('li');if(li&&li.dataset.v)go(li.dataset.v);});
+go('dashboard');
+</script>
+</body>
+</html>
