@@ -143,6 +143,31 @@
   .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:12px 20px;border-radius:10px;font-size:.86rem;box-shadow:var(--shadow);opacity:0;transition:.3s;z-index:99}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
   .muted{color:var(--slate);font-size:.85rem}
+  /* research */
+  .srcstrip{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:16px}
+  .srcpill{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:.82rem;box-shadow:var(--shadow)}
+  .srcpill .si{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;font-size:.8rem;background:var(--accent-soft);color:var(--accent)}
+  .srcpill .sn{font-weight:600;color:var(--navy)}.srcpill .sd{color:var(--slate);font-size:.74rem}
+  .srcpill .dot{width:7px;height:7px;border-radius:50%;background:var(--success);margin-left:2px}
+  .res-ans{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);margin-top:14px;display:none}
+  .res-ans.show{display:block;animation:fade .3s}
+  .res-ans .ab{padding:16px 18px;font-size:.9rem;line-height:1.6}
+  .res-ans .ab b{color:var(--navy)}
+  .cites{margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+  .cites .cl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--slate);margin-bottom:7px}
+  .cite{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:4px 11px;font-size:.78rem;margin:0 6px 6px 0;cursor:pointer;color:var(--navy)}
+  .cite:hover{border-color:var(--accent);background:var(--accent-soft)}
+  .cite.statute{border-color:#cfe0ff}.cite.case{border-color:#d8cdf0}.cite.firm{border-color:#c2e6d4;background:var(--success-soft)}
+  .cite .ck{font-size:.64rem;font-weight:700;opacity:.7}
+  /* competitive intel */
+  tr.rowme{background:var(--accent-soft)}tr.rowme td{font-weight:600}
+  tr.rowme:hover{background:var(--accent-soft)}
+  .mv{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .mv:last-child{border-bottom:0}
+  .mv .mi{width:30px;height:30px;border-radius:8px;flex:0 0 auto;display:grid;place-items:center;font-size:.85rem;background:var(--bg)}
+  .mv .mtx{flex:1;font-size:.85rem}.mv .mtx .mh{font-weight:600;color:var(--ink)}
+  .mv .mtx .mrec{color:var(--accent);font-size:.78rem;margin-top:3px}
+  .mv .mtm{color:var(--slate);font-size:.74rem;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -157,6 +182,7 @@
       <li data-v="calendar"><span class="ico">📅</span> Calendar</li>
       <li class="sec">Casework</li>
       <li data-v="agent"><span class="ico">🤖</span> AI Agent</li>
+      <li data-v="research"><span class="ico">📚</span> Legal Research</li>
       <li data-v="documents"><span class="ico">📄</span> Documents</li>
       <li data-v="evidence"><span class="ico">🔎</span> Evidence &amp; AI Review</li>
       <li class="sec">Communication</li>
@@ -166,6 +192,7 @@
       <li class="sec">Money &amp; Growth</li>
       <li data-v="billing"><span class="ico">💳</span> Billing &amp; Trust</li>
       <li data-v="analytics"><span class="ico">📈</span> Analytics</li>
+      <li data-v="compete"><span class="ico">🎯</span> Competitive Intel <span class="pip">5</span></li>
       <li data-v="marketing"><span class="ico">📣</span> Marketing</li>
       <li class="sec">Governance</li>
       <li data-v="audit"><span class="ico">🛡️</span> Audit &amp; Security</li>
@@ -194,7 +221,7 @@
   <div class="toast" id="toast"></div>
 
 <script>
-const PAGE={dashboard:["Dashboard","Wednesday · 203 calls handled today"],intake:["Intake Pipeline","18 new leads today · 0 sent to voicemail"],matters:["Matters","142 active · Beck 71 · Peistrup 68"],calendar:["Calendar","Synced with Google Calendar"],email:["Email","Synced with Gmail · AI triage on"],agent:["AI Agent","Your firm's private copilot"],documents:["Documents","Templates + automated drafting"],marketing:["Marketing","AI content + multi-channel publishing"],analytics:["Analytics","Operational + marketing intelligence"],billing:["Billing & Trust","Invoices, A/R & IOLTA trust accounting"],portal:["Client Portal","The secure client-facing view"],audit:["Audit & Security","Immutable trail · governed AI"],deadlines:["Deadlines","Ohio rules engine · auto-computed dates"],evidence:["Evidence & AI Review","Discovery intake + AI suppression flags"],sms:["Text / SMS","Two-way client texting + automations"]};
+const PAGE={dashboard:["Dashboard","Wednesday · 203 calls handled today"],intake:["Intake Pipeline","18 new leads today · 0 sent to voicemail"],matters:["Matters","142 active · Beck 71 · Peistrup 68"],calendar:["Calendar","Synced with Google Calendar"],email:["Email","Synced with Gmail · AI triage on"],agent:["AI Agent","Your firm's private copilot"],documents:["Documents","Templates + automated drafting"],marketing:["Marketing","AI content + multi-channel publishing"],analytics:["Analytics","Operational + marketing intelligence"],billing:["Billing & Trust","Invoices, A/R & IOLTA trust accounting"],portal:["Client Portal","The secure client-facing view"],audit:["Audit & Security","Immutable trail · governed AI"],deadlines:["Deadlines","Ohio rules engine · auto-computed dates"],evidence:["Evidence & AI Review","Discovery intake + AI suppression flags"],sms:["Text / SMS","Two-way client texting + automations"],research:["Legal Research","Ohio Code · case law · firm knowledge — every answer cited"],compete:["Competitive Intelligence","Local market radar · competitors tracked daily"]};
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 
@@ -362,6 +389,65 @@ function ask(key){const a=ANS[key];if(!a)return;const c=document.getElementById(
   const tip=document.createElement('div');tip.className='cmsg a';tip.textContent='…';c.appendChild(tip);c.scrollTop=c.scrollHeight;
   setTimeout(()=>{tip.innerHTML=a.a;c.scrollTop=c.scrollHeight;},800);}
 
+const RES={
+  fst:{q:"What's the standard to suppress field sobriety tests in an Ohio OVI?",
+    a:`In Ohio, field-sobriety-test results come in <b>only if the State shows substantial compliance with NHTSA standards</b> — <b>R.C. 4511.19(D)(4)(b)</b>. That statute softened the older <b>strict-compliance</b> rule of <i>State v. Homan</i> (2000); <i>State v. Burnside</i> (2003) supplies the "substantial compliance" yardstick.<br><br><b>Where these get excluded:</b> pull the officer's NHTSA certification and the clue-by-clue HGN notes — a missing clue count, untimed passes, or non-compliant roadside conditions are the wedge. Your own <i>State v. Keller</i> (2024) memo ran this argument and won.`,
+    cites:[["R.C. 4511.19(D)(4)(b)","statute"],["State v. Homan, 89 Ohio St.3d 421 (2000)","case"],["State v. Burnside, 100 Ohio St.3d 152 (2003)","case"],["Firm: State v. Keller — suppression memo (2024)","firm"]],
+    dt:"Motion to Suppress — Field Sobriety Tests",
+    d:`IN THE MUNICIPAL COURT OF UNION COUNTY, OHIO\nState of Ohio v. [Client] — Case No. ____\n\nMOTION TO SUPPRESS FIELD SOBRIETY TESTS\n\nDefendant moves to suppress all field-sobriety-test evidence. Under R.C. 4511.19(D)(4)(b), such evidence is admissible only on a showing of substantial compliance with NHTSA standards (State v. Burnside; cf. State v. Homan). The State cannot make that showing here because [no documented HGN clue count / untimed administration / non-compliant roadside conditions].\n\n[Auto-drafted from research — verify citations before filing.]`},
+  livs:{q:"What did Liv's Law (HB 37) change for Ohio OVI?",
+    a:`<b>Am. Sub. H.B. 37 — "Liv's Law" — took effect April 9, 2025</b> and rewrote much of Ohio's OVI / aggravated-vehicular scheme. Headline changes: it <b>lengthened the lookback period</b> for counting prior offenses (so more clients face enhanced repeat-offender penalties), raised penalties, and tightened aggravated-vehicular-homicide provisions (<b>R.C. 2903.06</b>).<br><br>⚠️ <b>Currency flag:</b> your nine public OVI pages still describe <i>pre</i>-Liv's-Law penalties. The rewrites you've already drafted should go live before any client-facing use.`,
+    cites:[["Am. Sub. H.B. 37 (135th G.A.), eff. 4/9/2025","statute"],["R.C. 4511.19","statute"],["R.C. 2903.06","statute"],["Firm: drafted OVI page rewrites (LAWAI)","firm"]],
+    dt:"Client explainer — Liv's Law",
+    d:`WHAT "LIV'S LAW" MEANS FOR YOU  (plain-English client explainer)\n\nOhio changed its OVI laws on April 9, 2025. The biggest change for most drivers: the state now looks back further when counting prior offenses, so a new charge can be treated more seriously than it would have been before. Penalties also went up.\n\nWhat this means for your case: [personalize]. We'll walk through exactly how the current law applies at your consultation.\n\n[Auto-drafted — review before sending.]`},
+  als:{q:"Refusal vs. failed breath test — ALS length and appeal window?",
+    a:`The administrative license suspension under Ohio's implied-consent law (<b>R.C. 4511.191</b>) is separate from the criminal case, and is <b>longer for a refusal</b> than for a test-over-the-limit. <i>Illustrative first-offense figures: refusal ≈ 1 year; failed test ≈ 90 days — Beck validates against the live statute.</i><br><br><b>The deadline that matters:</b> under <b>R.C. 4511.197</b>, the ALS appeal must be raised at — or within 30 days of — the initial appearance. This is the short window the after-hours intake flags overnight so it never slips.`,
+    cites:[["R.C. 4511.191","statute"],["R.C. 4511.197","statute"],["Firm: ALS appeal template","firm"]],
+    dt:"Appeal of Administrative License Suspension",
+    d:`IN THE MUNICIPAL COURT OF UNION COUNTY, OHIO\nState of Ohio v. [Client] — Case No. ____\n\nAPPEAL OF ADMINISTRATIVE LICENSE SUSPENSION (R.C. 4511.197)\n\nDefendant appeals the administrative license suspension imposed under R.C. 4511.191 and requests a hearing on the statutory scope of appeal, including whether the arresting officer had reasonable grounds, whether a proper request and advisement were given, and whether the defendant refused or tested over the limit.\n\n[Auto-drafted from research — confirm the filing deadline before submitting.]`},
+  marked:{q:"Have we challenged a “weaving” / marked-lanes stop before?",
+    a:`Yes — across <b>3 prior matters</b>. In <i>State v. Keller</i> (2024) and <i>State v. Marsh</i> (2023) you challenged reasonable suspicion where the report alleged "weaving" but no actual <b>marked-lanes violation</b>.<br><br>The controlling authority cuts both ways: <i>State v. Mays</i> (2008) holds a marked-lanes violation <i>does</i> justify a stop — so the winning wedge is factual: did the driving actually cross the line, or is "weaving within the lane" all the officer has? Your <i>Keller</i> brief distinguished <i>Mays</i> on exactly that point and is the cleanest template.`,
+    cites:[["State v. Mays, 119 Ohio St.3d 406 (2008)","case"],["Firm: State v. Keller (2024)","firm"],["Firm: State v. Marsh (2023)","firm"]],
+    dt:"Suppression argument — basis for the stop",
+    d:`SUPPRESSION ARGUMENT — BASIS FOR THE STOP  (from your State v. Keller template)\n\nThe stop lacked reasonable, articulable suspicion. The report alleges "weaving" but identifies no marked-lanes violation (R.C. 4511.33) and no other traffic offense. State v. Mays (2008) is distinguishable: there, the vehicle crossed the marked line; here, the described movement remained within the lane and does not, standing alone, justify the stop.\n\n[Auto-drafted from firm work product — adapt to the facts.]`}
+};
+const RKIND={statute:"CODE",case:"CASE",firm:"FIRM"};
+function resCites(arr){return `<div class="cites"><div class="cl">Sources — every claim links to authority</div>`+arr.map(c=>`<span class="cite ${c[1]}" onclick="toast('Opening source — ${c[0].replace(/'/g,'')}')"><span class="ck">${RKIND[c[1]]}</span> ${c[0]}</span>`).join('')+`</div>`;}
+V.research=()=>`
+  <div class="card" style="border-left:3px solid var(--success);margin-bottom:16px"><div class="ch">📚 Grounded legal research <span class="badge">cites authority · won't invent a case</span></div>
+    <div style="padding:12px 16px;font-size:.88rem;color:var(--slate)">Ask in plain English. Every answer is grounded in the Ohio Revised Code, Ohio case law (via your LexisNexis subscription), and the firm's own past work — and <b style="color:var(--navy)">shows its sources</b>. If it can't cite authority, it says so. <b style="color:var(--danger)">Illustrative answers &amp; citations for this demo.</b></div>
+  </div>
+  <div class="srcstrip">
+    <div class="srcpill"><span class="si">§</span><span><span class="sn">Ohio Revised Code</span><br><span class="sd">full statute index · grounded</span></span><span class="dot"></span></div>
+    <div class="srcpill"><span class="si">⚖️</span><span><span class="sn">Ohio case law</span><br><span class="sd">via LexisNexis · connected</span></span><span class="dot"></span></div>
+    <div class="srcpill"><span class="si">🗂️</span><span><span class="sn">Firm knowledge</span><br><span class="sd">past matters, briefs &amp; motions · indexed</span></span><span class="dot"></span></div>
+    <div class="srcpill"><span class="si">🏛️</span><span><span class="sn">Local rules &amp; BMV</span><br><span class="sd">Union County · Ohio BMV</span></span><span class="dot"></span></div>
+  </div>
+  <div class="card"><div class="ch">Ask a legal question <span class="badge">private to the firm</span></div>
+    <div style="padding:14px 16px">
+      <input class="search" style="width:100%;margin-bottom:4px" placeholder="e.g. Can we suppress an HGN test administered without NHTSA conditions?" />
+      <div class="chips">
+        <span class="chip" onclick="resAsk('fst')">Standard to suppress field sobriety tests?</span>
+        <span class="chip" onclick="resAsk('livs')">What did Liv's Law (HB 37) change?</span>
+        <span class="chip" onclick="resAsk('als')">Refusal vs. failed test — ALS &amp; appeal window?</span>
+        <span class="chip" onclick="resAsk('marked')">Have we challenged a "weaving" stop before?</span>
+      </div>
+    </div>
+  </div>
+  <div class="res-ans" id="resans"></div>`;
+function resAsk(key){const r=RES[key];if(!r)return;const el=document.getElementById('resans');if(!el){go('research');setTimeout(()=>resAsk(key),250);return;}
+  el.classList.add('show');
+  el.innerHTML=`<div class="ch">${r.q} <span class="badge">grounded</span></div><div class="ab"><span class="muted">Researching Ohio Code, case law &amp; firm files…</span></div>`;
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  setTimeout(()=>{el.innerHTML=`<div class="ch">${r.q} <span class="badge">grounded</span></div>
+    <div class="ab">${r.a}${resCites(r.cites)}
+      <div style="margin-top:14px"><button class="btn btn-soft" onclick="resDraft('${key}')">✨ Draft from this — ${r.dt}</button></div>
+      <div class="draftbox" id="resdraft"></div>
+    </div>`;},650);}
+function resDraft(key){const r=RES[key];const d=document.getElementById('resdraft');if(!d)return;d.classList.add('show');
+  d.innerHTML=`<b>${r.dt}</b><br><br>${r.d.replace(/\n/g,'<br>')}<br><br><button class="btn btn-navy" onclick="toast('Copied to clipboard')">Copy</button> <button class="btn btn-ghost" onclick="toast('Saved to research library')">Save to research library</button>`;
+  d.scrollIntoView({behavior:'smooth',block:'nearest'});}
+
 const DOCS=[
   {ic:'📝',t:'Engagement Letter',d:'Auto-filled from the matter',k:'eng'},
   {ic:'🚗',t:'OVI Intake Summary',d:'From the captured call',k:'ovi'},
@@ -469,6 +555,54 @@ V.analytics=()=>`
     • <b>Family law leaks at the consult stage</b> — leads arrive but convert below OVI; tighten the follow-up sequence.<br>
     • <b>Columbus / Franklin County is open field</b> — you don't rank or get cited by AI there yet; biggest growth lever.
   </div></div>`;
+
+V.compete=()=>`
+  <div class="kpis">
+    <div class="kpi"><b>#1</b><span>"OVI attorney Marysville"</span><div class="d" style="color:var(--success)">held 6 mo · map pack</div></div>
+    <div class="kpi"><b>41%</b><span>Local share of voice (Union Co.)</span><div class="d" style="color:var(--success)">▲ leads the market</div></div>
+    <div class="kpi"><b>42 · 4.9★</b><span>Your reviews</span><div class="d" style="color:var(--accent)">nearest rival: 0</div></div>
+    <div class="kpi"><b>5</b><span>Competitor moves this week</span><div class="d" style="color:var(--danger)">needs review</div></div>
+  </div>
+  <div class="card"><div class="ch">Competitor scorecard <span class="badge">refreshed daily</span></div>
+    <table><thead><tr><th>Firm</th><th>Focus</th><th>OVI · Marysville</th><th>Reviews</th><th>Google Business</th><th>New content (30d)</th><th>Ads</th><th>AI citations</th></tr></thead><tbody>
+      <tr class="rowme"><td>Beck Peistrup <span class="tag t-new">You</span></td><td>OVI + Family</td><td><span class="tag t-won">#1</span></td><td>42 · 4.9★</td><td>Active</td><td>9 pages (Liv's Law)</td><td>—</td><td><span class="tag t-won">3 / 4 engines</span></td></tr>
+      <tr><td><b>Dominy Law</b></td><td>OVI (elite)</td><td><span class="tag t-won">#2</span></td><td>180 · 4.8★</td><td>Active</td><td><span class="tag t-hot">4 posts ▲</span></td><td><span class="tag t-hot">Google Ads</span></td><td><span class="tag t-won">4 / 4 engines</span></td></tr>
+      <tr><td><b>Bridges / Streng</b></td><td>Criminal + Family</td><td><span class="tag t-wait">#4</span></td><td>95 · 4.7★</td><td>Moderate</td><td>2 posts</td><td><span class="tag t-wait">Google Ads</span></td><td><span class="tag t-wait">2 / 4 engines</span></td></tr>
+      <tr><td><b>M.L. Ranney</b></td><td>OVI</td><td><span class="tag t-hot">#6</span></td><td><span class="tag t-hot">0 reviews</span></td><td>Thin</td><td>1 post</td><td>—</td><td><span class="tag t-hot">Not cited</span></td></tr>
+    </tbody></table>
+    <p class="muted" style="padding:10px 16px 14px">Public signals only — rankings, reviews, posts, ads, and AI-answer citations, tracked automatically each day.</p>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="ch">⚡ Competitor moves this week <span class="badge">alerts</span></div>
+      <div class="mv"><span class="mi">📈</span><span class="mtx"><span class="mh">Dominy Law published 3 new OVI articles</span> — now 4 in 30 days.<div class="mrec">Rec: publish your Liv's Law explainer this week to close the content gap.</div></span><span class="mtm">2d ago</span></div>
+      <div class="mv"><span class="mi">💰</span><span class="mtx"><span class="mh">Dominy raised Google Ads spend on "Columbus DUI lawyer"</span> — buying the Columbus market.<div class="mrec">Rec: decide a paid-vs-organic play for Franklin County (you rank #19 there).</div></span><span class="mtm">3d ago</span></div>
+      <div class="mv"><span class="mi">⭐</span><span class="mtx"><span class="mh">Bridges/Streng earned 4 new reviews</span> — now 95.<div class="mrec">Rec: keep your post-case review automation running — it's your edge.</div></span><span class="mtm">4d ago</span></div>
+      <div class="mv"><span class="mi">🆕</span><span class="mtx"><span class="mh">New entrant ranking p.2 for "Union County OVI"</span> — a Columbus firm.<div class="mrec">Rec: shore up Union County content before it climbs.</div></span><span class="mtm">5d ago</span></div>
+      <div class="mv"><span class="mi">📍</span><span class="mtx"><span class="mh">M.L. Ranney added 1 Google Business post</span> — still 0 reviews.<div class="mrec">Rec: low threat — your 42 reviews are the moat; keep amplifying them.</div></span><span class="mtm">6d ago</span></div>
+    </div>
+    <div class="card"><div class="ch">Your share of voice by query <span class="badge">vs. all local firms</span></div><div style="padding:10px 0 12px">
+      <div class="bar"><span class="nm" style="flex:0 0 150px">OVI attorney Marysville</span><span class="tr"><span class="fl" style="width:46%"></span></span><span class="nu">46%</span></div>
+      <div class="bar"><span class="nm" style="flex:0 0 150px">Union County OVI lawyer</span><span class="tr"><span class="fl" style="width:38%"></span></span><span class="nu">38%</span></div>
+      <div class="bar"><span class="nm" style="flex:0 0 150px">OVI checkpoints Ohio</span><span class="tr"><span class="fl" style="width:21%"></span></span><span class="nu">21%</span></div>
+      <div class="bar"><span class="nm" style="flex:0 0 150px">DUI lawyer Columbus</span><span class="tr"><span class="fl" style="width:7%;background:var(--danger)"></span></span><span class="nu">7%</span></div>
+      <div style="padding:8px 16px 0;font-size:.82rem;color:var(--slate)">You own Marysville &amp; Union County. Columbus is wide open — that 7% is the growth lever.</div>
+    </div></div>
+  </div>
+  <div class="card"><div class="ch">🌐 Who AI engines cite (GEO) <span class="badge">ChatGPT · Gemini · Perplexity · Claude</span></div>
+    <table><thead><tr><th>Query</th><th>Cited firms</th><th>You?</th></tr></thead><tbody>
+      <tr><td>"OVI attorney Marysville"</td><td>Beck Peistrup, Dominy</td><td><span class="tag t-won">Cited · 3/4</span></td></tr>
+      <tr><td>"best OVI lawyer Union County"</td><td>Beck Peistrup</td><td><span class="tag t-won">Cited · 4/4</span></td></tr>
+      <tr><td>"Columbus DUI lawyer"</td><td>Dominy, Bridges/Streng</td><td><span class="tag t-hot">Not cited</span></td></tr>
+      <tr><td>"what to do after an OVI arrest Ohio"</td><td>Dominy</td><td><span class="tag t-wait">Not cited yet</span></td></tr>
+    </tbody></table>
+  </div>
+  <div class="card" style="border-left:3px solid var(--accent)"><div class="ch">🤖 AI agent insights</div><div style="padding:12px 16px;font-size:.88rem;line-height:1.6">
+    • <b>Dominy is your real competitor</b> — elite OVI, running ads, cited by every AI engine. Watch their content cadence; match it on Liv's Law.<br>
+    • <b>Ranney is positioned but under-executed</b> — 0 reviews, thin content, not cited. Your 42 reviews @ 4.9 are a moat she can't quickly match.<br>
+    • <b>Columbus / Franklin County is open field</b> — no local firm owns the AI answers there yet. Biggest growth lever; decide paid vs. organic.<br>
+    • <b>This week:</b> publish the Liv's Law explainer + refresh your nine OVI pages to defend the content lead.
+  </div></div>
+  <div style="text-align:center;margin-top:6px"><span class="chip" onclick="go('agent')">🤖 Ask the copilot about a competitor →</span></div>`;
 
 V.billing=()=>`
   <div class="kpis">
