@@ -60,12 +60,31 @@
   .note{font-size:.78rem;color:var(--slate);font-style:italic;margin-top:18px;text-align:center}
   footer{text-align:center;color:var(--slate);font-size:.8rem;margin-top:22px}
   footer b{color:var(--gold-d)}
+  nav.sitebar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin:-28px -16px 24px}
+  nav.sitebar .nav-in{max-width:880px;margin:0 auto;padding:0 16px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  nav.sitebar .brand{display:flex;align-items:center;gap:11px;text-decoration:none}
+  nav.sitebar .mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:var(--gold);display:grid;place-items:center;font-size:.74rem;font-weight:700}
+  nav.sitebar .bt{font-family:Georgia,serif;font-weight:600;color:var(--navy);font-size:1rem;line-height:1.1}
+  nav.sitebar .bs{font-size:.72rem;color:var(--gold-d);letter-spacing:.08em;text-transform:uppercase}
+  nav.sitebar .nav-links{display:flex;gap:18px;font-size:.9rem;flex-wrap:wrap}
+  nav.sitebar .nav-links a{color:var(--slate);font-weight:500;text-decoration:none}
+  nav.sitebar .nav-links a:hover{color:var(--navy)}
+  nav.sitebar .nav-links a.active{color:var(--navy);font-weight:700}
+  @media(max-width:560px){nav.sitebar .bs{display:none}nav.sitebar .nav-links{gap:10px;font-size:.82rem}}
 </style>
 </head>
 <body>
+<nav class="sitebar"><div class="nav-in">
+  <a class="brand" href="index.html"><span class="mark">AMD</span><span><span class="bt">AMD Consulting</span><br><span class="bs">for Beck Peistrup, LTD</span></span></a>
+  <div class="nav-links">
+    <a href="index.html">Overview</a>
+    <a href="proposal.html">Proposal</a>
+    <a href="phone-flow.html" class="active">Phone Integration</a>
+    <a href="mission-control.html">Mission Control</a>
+  </div>
+</div></nav>
 <div class="page">
-  <header>
-    <div class="brand"><span class="mk">AMD</span><span><b>AMD Consulting</b><span>for Beck Peistrup, LTD</span></span></div>
+  <header style="justify-content:flex-start">
     <span class="badge">Phone integration · how it works</span>
   </header>
   <h1>Every call, captured — here's the path it takes</h1>

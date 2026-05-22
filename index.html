@@ -34,7 +34,8 @@
   .nav-links{display:flex;gap:22px;font-size:.9rem}
   .nav-links a{color:var(--slate);font-weight:500}
   .nav-links a:hover{color:var(--navy)}
-  @media(max-width:820px){.nav-links{display:none}}
+  @media(max-width:820px){.nav-links{display:flex;gap:10px;font-size:.82rem;flex-wrap:wrap}}
+  .nav-links a.active{color:var(--navy);font-weight:700}
 
   .hero{background:linear-gradient(160deg,var(--navy) 0%,var(--navy2) 60%,#1d3e63 100%);color:#eaf1f8;padding:74px 0 84px;position:relative;overflow:hidden}
   .hero:after{content:"";position:absolute;right:-120px;top:-120px;width:420px;height:420px;background:radial-gradient(circle,rgba(194,163,90,.22),transparent 65%)}
@@ -186,14 +187,12 @@
 <div class="badge-bar">An <b>AMD Consulting</b> engagement &nbsp;·&nbsp; prepared for <b>Beck Peistrup, LTD</b> &nbsp;·&nbsp; illustrative prototype</div>
 
 <nav><div class="wrap nav-in">
-  <div class="brand"><span class="mark">AMD</span><span><span class="bt">AMD Consulting</span><br><span class="bs">for Beck Peistrup, LTD</span></span></div>
+  <a class="brand" href="index.html"><span class="mark">AMD</span><span><span class="bt">AMD Consulting</span><br><span class="bs">for Beck Peistrup, LTD</span></span></a>
   <div class="nav-links">
-    <a href="#intake">Intake Demo</a>
-    <a href="#mc">Mission Control</a>
-    <a href="#plan">The Plan</a>
-    <a href="#security">Security</a>
-    <a href="#next">Next</a>
-    <a href="proposal.html">Proposal →</a>
+    <a href="index.html" class="active">Overview</a>
+    <a href="proposal.html">Proposal</a>
+    <a href="phone-flow.html">Phone Integration</a>
+    <a href="mission-control.html">Mission Control</a>
   </div>
 </div></nav>
 
